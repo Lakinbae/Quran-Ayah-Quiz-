@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>body { background-color: var(--tg-theme-bg-color, #0b0f19); }</style>
 </head>
-<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-between p-4 selection:bg-emerald-500 selection:text-slate-950">
+<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-between p-3 sm:p-4 selection:bg-emerald-500 selection:text-slate-950">
 
     <!-- Header & Profile Bar -->
-    <header class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex items-center justify-between">
+    <header class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-lg flex items-center justify-between shrink-0 mb-3">
         <div class="flex items-center space-x-3">
             <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30">
                 <i class="fa-solid fa-book-quran text-lg"></i>
@@ -37,8 +37,8 @@
         </div>
     </header>
 
-    <!-- Main Game Container -->
-    <main class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5 my-auto">
+    <!-- Main Game Container (Scrollable to prevent bottom clipping in Telegram) -->
+    <main class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 overflow-y-auto flex-1 my-1">
         
         <!-- Stats Mini Dashboard -->
         <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
@@ -72,9 +72,9 @@
             <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400">0</strong></span>
         </div>
 
-        <div class="space-y-3 text-center py-2">
+        <div class="space-y-3 text-center py-1">
             <h2 id="challenge-prompt" class="text-xs font-bold text-slate-400 uppercase tracking-wide">Identify the correct reference:</h2>
-            <div id="arabic-verse" class="text-xl sm:text-2xl font-serif text-emerald-300 bg-slate-950/60 p-5 rounded-2xl border border-slate-800 leading-loose">
+            <div id="arabic-verse" class="text-xl sm:text-2xl font-serif text-emerald-300 bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-slate-800 leading-loose">
                 Loading Quran data...
             </div>
             <p id="verse-translation" class="text-xs text-slate-300 italic px-2"></p>
@@ -82,10 +82,10 @@
         </div>
 
         <!-- Options Container -->
-        <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+        <div id="options-container" class="grid grid-cols-1 gap-2.5"></div>
 
         <!-- Next Button -->
-        <button onclick="loadRandomChallenge()" id="next-btn" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">
+        <button onclick="loadRandomChallenge()" id="next-btn" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20 mt-2">
             Next Ayah Challenge <i class="fa-solid fa-arrow-right ml-1"></i>
         </button>
     </main>
@@ -103,7 +103,6 @@
             
             <div class="space-y-3 text-xs text-slate-300">
                 <p class="text-slate-400">Unlock full access to advanced features to elevate your memorization journey:</p>
-                
                 <ul class="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
                     <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Targeted Juz & Surah Specific Filters</span></li>
                     <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Audio Recitation playback integration</span></li>
@@ -170,8 +169,8 @@
     </div>
 
     <!-- Footer -->
-    <footer class="w-full max-w-xl text-center py-3 space-y-1.5 text-slate-500 text-[11px]">
-        <p>Built with 💙 by <span class="text-slate-300 font-semibold">Hijabi Coder</span></p>
+    <footer class="w-full max-w-xl text-center py-2 space-y-1 text-slate-500 text-[11px] shrink-0">
+        <p>Built with 💚 by <span class="text-slate-300 font-semibold">Lakin Awel</span></p>
     </footer>
 
     <script>
@@ -339,7 +338,10 @@
             document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
             document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
             document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded!</p>`;
-            document.getElementById('next-btn').classList.remove('hidden');
+            
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.scrollIntoView({ behavior: 'smooth' });
         }
 
         async function checkAnswer(selected, correct) {
@@ -364,7 +366,9 @@
                 updateBadge();
             }
 
-            document.getElementById('next-btn').classList.remove('hidden');
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.scrollIntoView({ behavior: 'smooth' });
         }
 
         function updateBadge() {
@@ -381,10 +385,8 @@
         function closeProModal() { document.getElementById('pro-modal').classList.add('hidden'); }
 
         function payWithTelegramStars() {
-            // Integration placeholder for Telegram Stars invoice trigger
             if (window.Telegram && window.Telegram.WebApp) {
-                // const tg = window.Telegram.WebApp;
-                // tg.openInvoice(invoiceUrl);
+                // tg.openInvoice(...)
             }
             appState.isPro = true;
             saveAppState();
@@ -394,7 +396,6 @@
         }
 
         function payWithChapaLocal() {
-            // Integration placeholder for Chapa checkout link redirect for local users
             window.open("https://chapa.co", "_blank");
             appState.isPro = true;
             saveAppState();
@@ -436,4 +437,4 @@
         loadRandomChallenge();
     </script>
 </body>
-  </html>
+</html>

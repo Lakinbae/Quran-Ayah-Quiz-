@@ -162,7 +162,7 @@
                 </ul>
             </div>
 
-            <!-- Manual Telebirr Payment Box (Updated to 25 ETB) -->
+            <!-- Manual Telebirr Payment Box (25 ETB) -->
             <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2 text-xs">
                 <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Manual Transfer (25 ETB)</span></p>
                 <p class="text-slate-300">Send 25 ETB via Telebirr to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
@@ -172,7 +172,7 @@
             <div class="space-y-2 pt-1">
                 <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
                     <i class="fa-solid fa-star text-amber-300"></i>
-                    <span>Pay with Telegram Stars (150 ⭐)</span>
+                    <span>Pay with Telegram Stars (10 ⭐)</span>
                 </button>
             </div>
         </div>
@@ -296,7 +296,6 @@
                 }
             } catch(e) {}
             
-            // Sync with Render backend on load
             syncProStatusFromBackend();
 
             const today = new Date().toDateString();
@@ -524,8 +523,30 @@
             loadRandomChallenge();
         }
 
-        function openTelegramStarsCheckout() {
-            alert("To unlock via Telegram Stars or automated invoicing, connect this mini-app to your bot backend endpoint.");
+        async function openTelegramStarsCheckout() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
+                    const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+                    const res = await fetch(`https://ayah-quiz-backend.onrender.com/api/create-invoice/${userId}`);
+                    const data = await res.json();
+                    
+                    if (data && data.invoiceLink) {
+                        window.Telegram.WebApp.openInvoice(data.invoiceLink, (status) => {
+                            if (status === 'paid') {
+                                appState.isPro = true;
+                                saveAppState();
+                                updateBadge();
+                                closeProModal();
+                                alert("Payment successful! Pro features unlocked.");
+                            }
+                        });
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not fetch invoice link from backend:", e);
+            }
+            alert("To pay with Stars, make sure your bot backend has the invoice generator configured at https://ayah-quiz-backend.onrender.com/api/create-invoice");
         }
 
         function openProfileModal() {

@@ -88,10 +88,16 @@
                 Ayah Challenge
             </span>
             <div class="flex items-center space-x-2">
-                <!-- Pro Locked Audio Playback Button -->
-                <button type="button" id="audio-play-btn" onclick="playAyahAudio()" class="hidden bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer flex items-center space-x-1.5 shadow-sm" title="Listen Recitation">
-                    <i class="fa-solid fa-volume-high"></i>
-                    <span id="audio-btn-label" class="text-[10px] font-semibold">Audio</span>
+                <!-- Pro Audio Playback & Speed Controls -->
+                <div id="audio-controls-group" class="hidden flex items-center space-x-1 bg-slate-900 border border-slate-700 rounded-xl p-1">
+                    <button type="button" onclick="playAyahAudio()" class="text-emerald-400 text-xs px-2 py-1 hover:text-white transition cursor-pointer flex items-center space-x-1" title="Play Recitation">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <button type="button" onclick="toggleAudioSpeed()" id="speed-badge" class="text-[9px] font-extrabold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 cursor-pointer" title="Toggle Speed">1x</button>
+                </div>
+                <!-- Bookmark Toggle -->
+                <button type="button" id="bookmark-btn" onclick="toggleBookmarkCurrent()" class="hidden bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer shadow-sm" title="Bookmark Ayah">
+                    <i class="fa-solid fa-bookmark"></i>
                 </button>
                 <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400 font-extrabold">0</strong></span>
             </div>
@@ -127,13 +133,14 @@
             </div>
             
             <div class="space-y-3 text-xs text-slate-300">
-                <p class="text-slate-400">Filter quiz questions by specific Juz or drill focus:</p>
+                <p class="text-slate-400">Filter quiz questions by specific Juz or bookmark collection:</p>
                 <div class="space-y-2">
                     <label class="block font-bold text-slate-400">Select Range / Juz</label>
                     <select id="filter-select" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500">
                         <option value="all">Entire Quran (All Surahs)</option>
                         <option value="juz30">Juz 30 (Ammamma)</option>
                         <option value="mistakes">Drill My Mistakes Only (<span id="mistake-count-badge">0</span>)</option>
+                        <option value="bookmarks">Bookmarked Hard Verses (<span id="bookmark-count-badge">0</span>)</option>
                         <script>
                             for(let i=1; i<=29; i++) {
                                 document.write(`<option value="juz${i}">Juz ${i}</option>`);
@@ -152,51 +159,49 @@
     </div>
 
     <!-- Pro Upgrade Modal -->
-<!-- Pro Upgrade Modal -->
-<div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-        <div class="flex items-center justify-between">
-            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                <i class="fa-solid fa-crown text-amber-400"></i>
-                <span>Ayah Quiz Pro</span>
-            </h3>
-            <button type="button" onclick="closeProModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
-        </div>
-        
-        <div class="space-y-3 text-xs text-slate-300">
-            <p class="text-slate-400">Upgrade to Pro to accelerate your hifz workflow:</p>
-            <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
-                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Audio Recitation</strong> playback (Mishary Alafasy)</span></li>
-                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
-                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Daily Memorization Bookmark</strong> (Save spot)</span></li>
-                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
-            </ul>
-        </div>
-
-        <!-- Manual Alternative & Direct DM Button -->
-        <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2.5 text-[11px]">
-            <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Option (25 ETB)</span></p>
-            <p class="text-slate-400">Send 25 ETB to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
-            <a href="https://t.me/luck_7n" target="_blank" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2 px-3 rounded-xl transition flex items-center justify-center space-x-2 text-xs cursor-pointer shadow-sm">
-                <i class="fa-brands fa-telegram text-sm"></i>
-                <span>Send Screenshot to @luck_7n</span>
-            </a>
-        </div>
-
-        <div class="space-y-2 pt-1">
-            <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg shadow-blue-600/20">
-                <i class="fa-solid fa-star text-amber-300 text-sm"></i>
-                <span>Unlock via Telegram Stars (10 ⭐)</span>
-            </button>
+    <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-crown text-amber-400"></i>
+                    <span>Ayah Quiz Pro</span>
+                </h3>
+                <button type="button" onclick="closeProModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
             
-            <!-- Developer Testing Bypass Button -->
-            <button type="button" onclick="devBypassPro()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-mono text-[10px] py-2 rounded-xl transition border border-slate-700 cursor-pointer">
-                🛠️ [Dev Test] Instant Pro Bypass
-            </button>
+            <div class="space-y-3 text-xs text-slate-300">
+                <p class="text-slate-400">Upgrade to Pro to accelerate your hifz workflow:</p>
+                <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Recitation Audio & Speed Control (0.75x / 1x)</strong></span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Hard Verse Bookmarking & Review</strong></span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
+                </ul>
+            </div>
+
+            <!-- Manual Alternative & Direct DM Button -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2.5 text-[11px]">
+                <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Option (25 ETB)</span></p>
+                <p class="text-slate-400">Send 25 ETB to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
+                <a href="https://t.me/luck_7n" target="_blank" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2 px-3 rounded-xl transition flex items-center justify-center space-x-2 text-xs cursor-pointer shadow-sm">
+                    <i class="fa-brands fa-telegram text-sm"></i>
+                    <span>Send Screenshot to @luck_7n</span>
+                </a>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-star text-amber-300 text-sm"></i>
+                    <span>Unlock via Telegram Stars (10 ⭐)</span>
+                </button>
+                
+                <!-- Secret Dev Bypass (Visible ONLY for ID 6545688842) -->
+                <button type="button" id="dev-bypass-btn" onclick="devBypassPro()" class="hidden w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-mono text-[10px] py-2 rounded-xl transition border border-slate-700 cursor-pointer">
+                    🛠️ [Dev Test ID: 6545688842] Instant Pro Bypass
+                </button>
+            </div>
         </div>
     </div>
-</div>
-
 
     <!-- Profile Modal -->
     <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -225,12 +230,12 @@
                         <span id="modal-total" class="font-bold text-emerald-400">0</span>
                     </div>
                     <div class="flex justify-between text-slate-400">
-                        <span>Mistakes Recorded:</span>
-                        <span id="modal-mistakes" class="font-bold text-rose-400">0</span>
+                        <span>Bookmarked Verses:</span>
+                        <span id="modal-bookmarks" class="font-bold text-amber-400">0</span>
                     </div>
                     <div class="flex justify-between text-slate-400">
-                        <span>Current Streak:</span>
-                        <span id="modal-streak" class="font-bold text-amber-400">0 days</span>
+                        <span>Mistakes Recorded:</span>
+                        <span id="modal-mistakes" class="font-bold text-rose-400">0</span>
                     </div>
                 </div>
             </div>
@@ -255,6 +260,7 @@
         let score = 0;
         let currentAyahData = null;
         let audioPlayer = null;
+        let currentPlaybackSpeed = 1.0;
 
         let surahListCache = [
             { number: 1, englishName: "Al-Fatihah", numberOfAyahs: 7 },
@@ -273,6 +279,7 @@
             lastLoginDate: "",
             totalAnswered: 0,
             mistakesList: [],
+            bookmarksList: [],
             activeFilter: "all",
             isPro: false
         };
@@ -292,14 +299,19 @@
             try {
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
                     const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                    const response = await fetch(`https://ayah-quiz-backend.onrender.com/api/check-pro/${userId}`);
-                    const data = await response.json();
                     
-                    if (data.isPro) {
+                    // Secure Dev ID check
+                    if (Number(userId) === 6545688842) {
                         appState.isPro = true;
-                        saveAppState();
-                        updateBadge();
+                        const devBtn = document.getElementById('dev-bypass-btn');
+                        if (devBtn) devBtn.classList.remove('hidden');
+                    } else {
+                        const response = await fetch(`https://ayah-quiz-backend.onrender.com/api/check-pro/${userId}`);
+                        const data = await response.json();
+                        if (data.isPro) appState.isPro = true;
                     }
+                    saveAppState();
+                    updateBadge();
                 }
             } catch (e) {
                 console.warn("Backend sync offline, using local state.");
@@ -308,7 +320,7 @@
 
         function loadAppState() {
             try {
-                const saved = localStorage.getItem('ayahquiz_profile_v10');
+                const saved = localStorage.getItem('ayahquiz_profile_v11');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     appState = { ...appState, ...parsed };
@@ -334,6 +346,7 @@
             document.getElementById('stat-total').textContent = appState.totalAnswered;
             document.getElementById('stat-mistakes').textContent = (appState.mistakesList || []).length;
             document.getElementById('mistake-count-badge').textContent = (appState.mistakesList || []).length;
+            document.getElementById('bookmark-count-badge').textContent = (appState.bookmarksList || []).length;
             
             if (appState.isPro) {
                 document.getElementById('pro-btn-text').textContent = "PRO Active";
@@ -343,7 +356,7 @@
 
         function saveAppState() {
             try {
-                localStorage.setItem('ayahquiz_profile_v10', JSON.stringify(appState));
+                localStorage.setItem('ayahquiz_profile_v11', JSON.stringify(appState));
             } catch(e) {}
         }
 
@@ -378,7 +391,8 @@
 
         async function loadRandomChallenge() {
             document.getElementById('next-btn').classList.add('hidden');
-            document.getElementById('audio-play-btn').classList.add('hidden');
+            document.getElementById('audio-controls-group').classList.add('hidden');
+            document.getElementById('bookmark-btn').classList.add('hidden');
             document.getElementById('arabic-verse').textContent = "Loading Ayah...";
             document.getElementById('verse-translation').textContent = "";
             document.getElementById('verse-reference-tag').textContent = "";
@@ -391,6 +405,10 @@
                 const randomMistake = appState.mistakesList[Math.floor(Math.random() * appState.mistakesList.length)];
                 sNum = randomMistake.surahNum;
                 aNum = randomMistake.ayahNum;
+            } else if (appState.activeFilter === "bookmarks" && appState.bookmarksList && appState.bookmarksList.length > 0) {
+                const randomBookmark = appState.bookmarksList[Math.floor(Math.random() * appState.bookmarksList.length)];
+                sNum = randomBookmark.surahNum;
+                aNum = randomBookmark.ayahNum;
             } else if (appState.activeFilter.startsWith("juz")) {
                 sNum = surahs[Math.floor(Math.random() * surahs.length)].number;
                 aNum = Math.floor(Math.random() * 20) + 1;
@@ -415,8 +433,12 @@
             document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
             document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
             
-            if (currentAyahData.audio) {
-                document.getElementById('audio-play-btn').classList.remove('hidden');
+            if (appState.isPro) {
+                if (currentAyahData.audio) {
+                    document.getElementById('audio-controls-group').classList.remove('hidden');
+                }
+                document.getElementById('bookmark-btn').classList.remove('hidden');
+                updateBookmarkButtonVisual();
             }
 
             let options = [currentAyahData.reference];
@@ -452,7 +474,13 @@
             document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
             document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
             document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
-            if(currentAyahData.audio) document.getElementById('audio-play-btn').classList.remove('hidden');
+            
+            if(appState.isPro) {
+                if(currentAyahData.audio) document.getElementById('audio-controls-group').classList.remove('hidden');
+                document.getElementById('bookmark-btn').classList.remove('hidden');
+                updateBookmarkButtonVisual();
+            }
+            
             document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded Successfully!</p>`;
             
             const nextBtn = document.getElementById('next-btn');
@@ -469,7 +497,52 @@
             if (!currentAyahData || !currentAyahData.audio) return;
             if (audioPlayer) audioPlayer.pause();
             audioPlayer = new Audio(currentAyahData.audio);
+            audioPlayer.playbackRate = currentPlaybackSpeed;
             audioPlayer.play().catch(e => alert("Audio playback restricted on browser container."));
+        }
+
+        function toggleAudioSpeed() {
+            if (currentPlaybackSpeed === 1.0) {
+                currentPlaybackSpeed = 0.75;
+                document.getElementById('speed-badge').textContent = "0.75x";
+            } else {
+                currentPlaybackSpeed = 1.0;
+                document.getElementById('speed-badge').textContent = "1x";
+            }
+            if (audioPlayer) audioPlayer.playbackRate = currentPlaybackSpeed;
+        }
+
+        function toggleBookmarkCurrent() {
+            if (!appState.isPro) {
+                alert("Bookmarking verses is a Pro feature.");
+                openProModal();
+                return;
+            }
+            if (!currentAyahData) return;
+            if (!appState.bookmarksList) appState.bookmarksList = [];
+            
+            const idx = appState.bookmarksList.findIndex(b => b.surahNum === currentAyahData.surahNum && b.ayahNum === currentAyahData.ayahNum);
+            if (idx >= 0) {
+                appState.bookmarksList.splice(idx, 1);
+                alert("Ayah removed from bookmarks.");
+            } else {
+                appState.bookmarksList.push({ surahNum: currentAyahData.surahNum, ayahNum: currentAyahData.ayahNum });
+                alert("Ayah successfully bookmarked!");
+            }
+            saveAppState();
+            updateBookmarkButtonVisual();
+            document.getElementById('bookmark-count-badge').textContent = appState.bookmarksList.length;
+        }
+
+        function updateBookmarkButtonVisual() {
+            if (!currentAyahData) return;
+            const isBookmarked = (appState.bookmarksList || []).some(b => b.surahNum === currentAyahData.surahNum && b.ayahNum === currentAyahData.ayahNum);
+            const btn = document.getElementById('bookmark-btn');
+            if (isBookmarked) {
+                btn.className = "bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-amber-500/40 transition cursor-pointer shadow-sm";
+            } else {
+                btn.className = "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer shadow-sm";
+            }
         }
 
         async function checkAnswer(selected, correct) {
@@ -543,6 +616,7 @@
             let labelTag = "All";
             if(appState.activeFilter === "juz30") labelTag = "Juz 30";
             else if(appState.activeFilter === "mistakes") labelTag = "Mistakes";
+            else if(appState.activeFilter === "bookmarks") labelTag = "Bookmarks";
             else if(appState.activeFilter.startsWith("juz")) labelTag = appState.activeFilter.toUpperCase();
             
             document.getElementById('filter-tag').textContent = labelTag;
@@ -576,12 +650,20 @@
             alert("To pay with Stars, ensure your bot backend is active at https://ayah-quiz-backend.onrender.com/api/create-invoice");
         }
 
+        function devBypassPro() {
+            appState.isPro = true;
+            saveAppState();
+            updateBadge();
+            closeProModal();
+            alert("Developer Pro Bypass Active for ID 6545688842!");
+            loadRandomChallenge();
+        }
+
         function openProfileModal() {
             document.getElementById('username-input').value = appState.name;
             document.getElementById('modal-total').textContent = appState.totalAnswered;
             document.getElementById('modal-mistakes').textContent = (appState.mistakesList || []).length;
-            appState.streak = appState.streak || 1;
-            document.getElementById('modal-streak').textContent = `${appState.streak} days`;
+            document.getElementById('modal-bookmarks').textContent = (appState.bookmarksList || []).length;
             document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
             document.getElementById('profile-modal').classList.remove('hidden');
         }
@@ -600,6 +682,7 @@
             if(confirm("Reset all statistics?")) {
                 appState.totalAnswered = 0;
                 appState.mistakesList = [];
+                appState.bookmarksList = [];
                 saveAppState();
                 loadAppState();
                 closeProfileModal();
@@ -609,14 +692,6 @@
 
         loadAppState();
         loadRandomChallenge();
-        function devBypassPro() {
-    appState.isPro = true;
-    saveAppState();
-    updateBadge();
-    closeProModal();
-    alert("Developer Pro Bypass Active! Enjoy testing Pro features.");
-    loadRandomChallenge();
-}
     </script>
 </body>
 </html>

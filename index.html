@@ -217,7 +217,7 @@
       <div class="card p-3">📚 <b>Extended history & insights</b><div class="muted text-xs">Deeper revision statistics.</div></div>
     </div>
     <div class="card p-4 mb-3"><div class="font-bold mb-1">Telegram Stars</div><div class="text-2xl font-extrabold">10 ⭐</div><div class="muted text-xs mb-3">One-time Pro activation.</div><button id="starsBtn" class="btn btn-gold w-full">Pay with Telegram Stars</button></div>
-    <div class="card p-4"><div class="font-bold mb-2">Telebirr</div><div class="muted text-sm">Send <b>25 ETB</b> to <b>0938054751</b> — Lakin Awel.</div><input id="telebirrRef" class="w-full btn btn-ghost mt-3" placeholder="Telebirr transaction/reference ID"><button id="telebirrBtn" class="btn btn-primary w-full mt-2">Submit payment request</button><div class="muted text-xs mt-2">Keep your receipt. Support: @luck_7n</div></div>
+    <div class="card p-4"><div class="font-bold mb-2">Telebirr</div><div class="muted text-sm">Send <b>25 ETB</b> to <b>0938054751</b> — Lakin Awel.</div><div class="muted text-xs mt-2">After paying, enter the transaction/reference ID below. Then <b>send the payment screenshot in this bot chat</b> so the admin can verify it.</div><input id="telebirrRef" class="w-full btn btn-ghost mt-3" placeholder="Telebirr transaction/reference ID"><button id="telebirrBtn" class="btn btn-primary w-full mt-2">Submit reference & continue</button><div class="muted text-xs mt-2">Your screenshot is reviewed manually. Support: @luck_7n</div></div>
   </div>
 </div>
 
@@ -233,6 +233,7 @@
       <div class="stat"><div id="resultXP">0</div><div class="muted text-xs">XP</div></div>
       <div class="stat"><div id="resultStreak">0</div><div class="muted text-xs">Streak</div></div>
     </div>
+    <button id="shareResultBtn" class="btn btn-gold w-full mb-2" type="button">📤 Challenge a friend</button>
     <button class="btn btn-primary w-full mb-2" data-action="start">Practice again</button>
     <button class="btn btn-ghost w-full" data-close="resultModal">Done</button>
   </div>
@@ -743,6 +744,16 @@
     } catch (_) {}
   }
 
+  function shareResult() {
+    const text = `🕌 AYAH QUIZ RESULT\n\n🎯 Score: ${session.score}/10\n⚡ XP earned: +${session.xp}\n🔥 Streak: ${state.streak} days\n\nCan you beat my score? 👀\n\n🚀 Take the challenge: ${window.location.href}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
+    try {
+      if (tg?.openTelegramLink) tg.openTelegramLink(shareUrl);
+      else if (navigator.share) navigator.share({title:'Ayah Quiz',text,url:window.location.href}).catch(()=>{});
+      else window.open(shareUrl,'_blank');
+    } catch (_) { window.open(shareUrl,'_blank'); }
+  }
+
   async function payStars() {
     if (!currentInitData) {
       toast('Open Ayah Quiz from Telegram to use Stars');
@@ -791,7 +802,7 @@
         method:'POST',
         body:JSON.stringify({initData:currentInitData,reference:ref,displayName:state.customName || state.name || ''})
       });
-      toast('Request sent. Wait for admin approval.');
+      toast('Reference received. Now send your payment screenshot in this bot chat.');
       document.getElementById('telebirrRef').value='';
     } catch(e) { toast(e.message); }
     finally { btn.disabled=false; btn.textContent='Submit payment request'; }
@@ -835,6 +846,7 @@
   audio.addEventListener('ended',()=>document.getElementById('audioBtn').textContent='▶︎ Recitation');
   audio.addEventListener('pause',()=>{ if(!audio.ended) document.getElementById('audioBtn').textContent='▶︎ Recitation'; });
   audio.addEventListener('play',()=>document.getElementById('audioBtn').textContent='⏸ Pause');
+  document.getElementById('shareResultBtn').addEventListener('click',shareResult);
   document.getElementById('starsBtn').addEventListener('click',payStars);
   document.getElementById('telebirrBtn').addEventListener('click',requestTelebirr);
   document.getElementById('themeToggleBtn').addEventListener('click',toggleTheme);

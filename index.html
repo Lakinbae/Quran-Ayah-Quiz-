@@ -41,35 +41,50 @@
     <main class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 overflow-y-auto flex-1 my-1">
         
         <!-- Stats Mini Dashboard -->
-        <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
+        <div class="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
             <div>
                 <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Streak</p>
-                <p class="text-xs font-extrabold text-amber-400 mt-0.5"><i class="fa-solid fa-fire mr-1"></i><span id="stat-streak">0</span> days</p>
+                <p class="text-xs font-extrabold text-amber-400 mt-0.5"><i class="fa-solid fa-fire"></i> <span id="stat-streak">0</span>d</p>
             </div>
-            <div class="border-l border-slate-800">
-                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Answered</p>
+            <div class="border-x border-slate-800">
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Answered</p>
                 <p class="text-xs font-extrabold text-emerald-400 mt-0.5" id="stat-total">0</p>
+            </div>
+            <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Mistakes</p>
+                <p class="text-xs font-extrabold text-rose-400 mt-0.5" id="stat-mistakes">0</p>
             </div>
         </div>
 
-        <!-- Mode Switcher & Input -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-            <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-900 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500 w-full sm:w-44">
+        <!-- Mode Switcher, Pro Filters & Input -->
+        <div class="flex flex-col gap-2.5 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+            <div class="flex items-center space-x-2 w-full">
+                <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-900 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500 flex-1">
                 <button type="button" onclick="loadCustomAyah()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap cursor-pointer">
                     Load
                 </button>
             </div>
-            <button type="button" onclick="loadRandomChallenge()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition border border-slate-700 cursor-pointer">
-                <i class="fa-solid fa-shuffle mr-1"></i> Random Quiz
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="loadRandomChallenge()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold py-2 rounded-xl transition border border-slate-700 cursor-pointer">
+                    <i class="fa-solid fa-shuffle mr-1"></i> Random Quiz
+                </button>
+                <button type="button" onclick="openFilterModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-bold px-3 py-2 rounded-xl transition border border-amber-500/30 cursor-pointer">
+                    <i class="fa-solid fa-filter mr-1"></i> Filters <span id="filter-tag" class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-300">All</span>
+                </button>
+            </div>
         </div>
 
         <div class="flex items-center justify-between">
             <span id="question-badge" class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-500/20">
                 Ayah Quiz
             </span>
-            <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400">0</strong></span>
+            <div class="flex items-center space-x-2">
+                <!-- Audio Playback Button -->
+                <button type="button" id="audio-play-btn" onclick="playAyahAudio()" class="hidden bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer" title="Listen Recitation">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400">0</strong></span>
+            </div>
         </div>
 
         <div class="space-y-3 text-center py-1">
@@ -90,6 +105,42 @@
         </button>
     </main>
 
+    <!-- Pro Filter Modal -->
+    <div id="filter-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-filter text-amber-400"></i>
+                    <span>Targeted Mode Filters</span>
+                </h3>
+                <button type="button" onclick="closeFilterModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            
+            <div class="space-y-3 text-xs text-slate-300">
+                <p class="text-slate-400">Filter quiz questions by specific Juz or mode:</p>
+                <div class="space-y-2">
+                    <label class="block font-bold text-slate-400">Select Range / Juz</label>
+                    <select id="filter-select" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500">
+                        <option value="all">Entire Quran (All Surahs)</option>
+                        <option value="juz30">Juz 30 (Ammamma)</option>
+                        <option value="mistakes">Drill My Mistakes Only (<span id="mistake-count-badge">0</span>)</option>
+                        <script>
+                            for(let i=1; i<=29; i++) {
+                                document.write(`<option value="juz${i}">Juz ${i}</option>`);
+                            }
+                        </script>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="applyFilter()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition cursor-pointer">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Pro Upgrade Modal -->
     <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
@@ -104,21 +155,24 @@
             <div class="space-y-3 text-xs text-slate-300">
                 <p class="text-slate-400">Unlock full access to advanced features to elevate your memorization journey:</p>
                 <ul class="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Targeted Juz & Surah Specific Filters</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Targeted Juz (1-30) & Surah Filters</span></li>
                     <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Audio Recitation playback integration</span></li>
                     <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Advanced Mistake Analytics & Drill Modes</span></li>
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Exclusive Pro Supporter Badge</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Exclusive Pro Supporter Badge ⭐</span></li>
                 </ul>
             </div>
 
-            <div class="space-y-2 pt-2">
-                <button type="button" onclick="payWithTelegramStars()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
+            <!-- Manual Telebirr Payment Box (Updated to 25 ETB) -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Manual Transfer (25 ETB)</span></p>
+                <p class="text-slate-300">Send 25 ETB via Telebirr to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
+                <p class="text-[11px] text-slate-400">After payment, send your transaction screenshot to the bot chat to get activated instantly!</p>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
                     <i class="fa-solid fa-star text-amber-300"></i>
-                    <span>Unlock with Telegram Stars (150 ⭐)</span>
-                </button>
-                <button type="button" onclick="payWithChapaLocal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
-                    <i class="fa-solid fa-wallet"></i>
-                    <span>Pay with Telebirr / Chapa (Local)</span>
+                    <span>Pay with Telegram Stars (150 ⭐)</span>
                 </button>
             </div>
         </div>
@@ -151,6 +205,10 @@
                         <span id="modal-total" class="font-bold text-emerald-400">0</span>
                     </div>
                     <div class="flex justify-between text-slate-400">
+                        <span>Mistakes Recorded:</span>
+                        <span id="modal-mistakes" class="font-bold text-rose-400">0</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
                         <span>Current Streak:</span>
                         <span id="modal-streak" class="font-bold text-amber-400">0 days</span>
                     </div>
@@ -176,8 +234,8 @@
     <script>
         let score = 0;
         let currentAyahData = null;
+        let audioPlayer = null;
 
-        // Fallback Surah list to guarantee zero infinite loading spinners if network API is delayed in Telegram WebView
         let surahListCache = [
             { number: 1, englishName: "Al-Fatihah", numberOfAyahs: 7 },
             { number: 2, englishName: "Al-Baqarah", numberOfAyahs: 286 },
@@ -194,10 +252,11 @@
             streak: 0,
             lastLoginDate: "",
             totalAnswered: 0,
+            mistakesList: [],
+            activeFilter: "all",
             isPro: false
         };
 
-        // Initialize Telegram WebApp context safely
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
@@ -207,19 +266,39 @@
                     appState.name = tg.initDataUnsafe.user.first_name;
                 }
             }
-        } catch (err) {
-            console.warn("Telegram WebApp context error:", err);
+        } catch (err) {}
+
+        // --- BACKEND PRO STATUS SYNC ---
+        async function syncProStatusFromBackend() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
+                    const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+                    const response = await fetch(`https://ayah-quiz-backend.onrender.com/api/check-pro/${userId}`);
+                    const data = await response.json();
+                    
+                    if (data.isPro) {
+                        appState.isPro = true;
+                        saveAppState();
+                        updateBadge();
+                    }
+                }
+            } catch (e) {
+                console.warn("Backend sync offline, using local state.");
+            }
         }
 
         function loadAppState() {
             try {
-                const saved = localStorage.getItem('ayahquiz_profile_v6');
+                const saved = localStorage.getItem('ayahquiz_profile_v9');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     appState = { ...appState, ...parsed };
                 }
             } catch(e) {}
             
+            // Sync with Render backend on load
+            syncProStatusFromBackend();
+
             const today = new Date().toDateString();
             if (appState.lastLoginDate !== today) {
                 const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toDateString();
@@ -235,6 +314,8 @@
             document.getElementById('user-display-name').textContent = appState.name;
             document.getElementById('stat-streak').textContent = appState.streak;
             document.getElementById('stat-total').textContent = appState.totalAnswered;
+            document.getElementById('stat-mistakes').textContent = (appState.mistakesList || []).length;
+            document.getElementById('mistake-count-badge').textContent = (appState.mistakesList || []).length;
             
             if (appState.isPro) {
                 document.getElementById('pro-btn-text').textContent = "PRO Active";
@@ -244,7 +325,7 @@
 
         function saveAppState() {
             try {
-                localStorage.setItem('ayahquiz_profile_v6', JSON.stringify(appState));
+                localStorage.setItem('ayahquiz_profile_v9', JSON.stringify(appState));
             } catch(e) {}
         }
 
@@ -255,53 +336,67 @@
                 if (data && data.data && data.data.length > 0) {
                     surahListCache = data.data;
                 }
-            } catch(e) {
-                console.warn("Using fallback surah list due to network block.");
-            }
+            } catch(e) {}
             return surahListCache;
         }
 
         async function fetchAyahFromAPI(surahNum, ayahNum) {
             try {
-                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/editions/quran-uthmani,en.sahih`);
+                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/editions/quran-uthmani,en.sahih,ar.alafasy`);
                 const data = await res.json();
-                if(data && data.data && data.data.length === 2) {
+                if(data && data.data && data.data.length >= 2) {
                     return {
+                        surahNum: Number(surahNum),
+                        ayahNum: Number(ayahNum),
                         arabic: data.data[0].text,
                         translation: data.data[1].text,
+                        audio: data.data[2] ? data.data[2].audio : null,
                         reference: `${data.data[0].surah.englishName} (${surahNum}:${ayahNum})`
                     };
                 }
-            } catch(e) {
-                console.error("API fetch error:", e);
-            }
+            } catch(e) {}
             return null;
         }
 
         async function loadRandomChallenge() {
             document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('audio-play-btn').classList.add('hidden');
             document.getElementById('arabic-verse').textContent = "Loading Ayah...";
             document.getElementById('verse-translation').textContent = "";
             document.getElementById('verse-reference-tag').textContent = "";
             document.getElementById('options-container').innerHTML = "";
 
             const surahs = await fetchSurahs();
-            const randomSurahObj = surahs[Math.floor(Math.random() * surahs.length)];
-            const sNum = randomSurahObj.number;
-            const aNum = Math.floor(Math.random() * randomSurahObj.numberOfAyahs) + 1;
+            let sNum, aNum;
+
+            if (appState.activeFilter === "mistakes" && appState.mistakesList && appState.mistakesList.length > 0) {
+                const randomMistake = appState.mistakesList[Math.floor(Math.random() * appState.mistakesList.length)];
+                sNum = randomMistake.surahNum;
+                aNum = randomMistake.ayahNum;
+            } else {
+                const randomSurahObj = surahs[Math.floor(Math.random() * surahs.length)];
+                sNum = randomSurahObj.number;
+                aNum = Math.floor(Math.random() * randomSurahObj.numberOfAyahs) + 1;
+            }
 
             currentAyahData = await fetchAyahFromAPI(sNum, aNum);
             if (!currentAyahData) {
-                // Fallback to Ayat al-Kursi (2:255) if fetch fails
                 currentAyahData = await fetchAyahFromAPI(2, 255) || {
+                    surahNum: 2,
+                    ayahNum: 255,
                     arabic: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ",
                     translation: "Allah - there is no deity except Him, the Ever-Living, the Sustainer of all existence.",
+                    audio: "https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3",
                     reference: "Al-Baqarah (2:255)"
                 };
             }
 
             document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
             document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
+            
+            if (currentAyahData.audio) {
+                document.getElementById('audio-play-btn').classList.remove('hidden');
+            }
 
             let options = [currentAyahData.reference];
             while(options.length < 4) {
@@ -336,11 +431,19 @@
             document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
             document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
             document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
+            if(currentAyahData.audio) document.getElementById('audio-play-btn').classList.remove('hidden');
             document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded!</p>`;
             
             const nextBtn = document.getElementById('next-btn');
             nextBtn.classList.remove('hidden');
             nextBtn.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function playAyahAudio() {
+            if (!currentAyahData || !currentAyahData.audio) return;
+            if (audioPlayer) audioPlayer.pause();
+            audioPlayer = new Audio(currentAyahData.audio);
+            audioPlayer.play().catch(e => alert("Audio playback restricted on browser container."));
         }
 
         async function checkAnswer(selected, correct) {
@@ -360,10 +463,24 @@
                 score += 10;
                 document.getElementById('score-val').textContent = score;
                 appState.totalAnswered++;
-                saveAppState();
-                document.getElementById('stat-total').textContent = appState.totalAnswered;
-                updateBadge();
+                if (appState.activeFilter === "mistakes" && currentAyahData) {
+                    appState.mistakesList = appState.mistakesList.filter(m => !(m.surahNum === currentAyahData.surahNum && m.ayahNum === currentAyahData.ayahNum));
+                }
+            } else {
+                if (currentAyahData) {
+                    if (!appState.mistakesList) appState.mistakesList = [];
+                    const exists = appState.mistakesList.some(m => m.surahNum === currentAyahData.surahNum && m.ayahNum === currentAyahData.ayahNum);
+                    if (!exists) {
+                        appState.mistakesList.push({ surahNum: currentAyahData.surahNum, ayahNum: currentAyahData.ayahNum });
+                    }
+                }
             }
+
+            saveAppState();
+            document.getElementById('stat-total').textContent = appState.totalAnswered;
+            document.getElementById('stat-mistakes').textContent = (appState.mistakesList || []).length;
+            document.getElementById('mistake-count-badge').textContent = (appState.mistakesList || []).length;
+            updateBadge();
 
             const nextBtn = document.getElementById('next-btn');
             nextBtn.classList.remove('hidden');
@@ -383,26 +500,38 @@
         function openProModal() { document.getElementById('pro-modal').classList.remove('hidden'); }
         function closeProModal() { document.getElementById('pro-modal').classList.add('hidden'); }
 
-        function payWithTelegramStars() {
-            appState.isPro = true;
+        function openFilterModal() {
+            if (!appState.isPro) {
+                alert("Targeted filters require Pro Access. Upgrade to unlock!");
+                openProModal();
+                return;
+            }
+            document.getElementById('filter-select').value = appState.activeFilter;
+            document.getElementById('filter-modal').classList.remove('hidden');
+        }
+        function closeFilterModal() { document.getElementById('filter-modal').classList.add('hidden'); }
+
+        function applyFilter() {
+            appState.activeFilter = document.getElementById('filter-select').value;
             saveAppState();
-            alert("Success! Pro features unlocked via Telegram Stars.");
-            closeProModal();
-            loadAppState();
+            let labelTag = "All";
+            if(appState.activeFilter === "juz30") labelTag = "Juz 30";
+            else if(appState.activeFilter === "mistakes") labelTag = "Mistakes";
+            else if(appState.activeFilter.startsWith("juz")) labelTag = appState.activeFilter.toUpperCase();
+            
+            document.getElementById('filter-tag').textContent = labelTag;
+            closeFilterModal();
+            loadRandomChallenge();
         }
 
-        function payWithChapaLocal() {
-            window.open("https://chapa.co", "_blank");
-            appState.isPro = true;
-            saveAppState();
-            alert("Redirecting to payment gateway... Pro features enabled!");
-            closeProModal();
-            loadAppState();
+        function openTelegramStarsCheckout() {
+            alert("To unlock via Telegram Stars or automated invoicing, connect this mini-app to your bot backend endpoint.");
         }
 
         function openProfileModal() {
             document.getElementById('username-input').value = appState.name;
             document.getElementById('modal-total').textContent = appState.totalAnswered;
+            document.getElementById('modal-mistakes').textContent = (appState.mistakesList || []).length;
             appState.streak = appState.streak || 1;
             document.getElementById('modal-streak').textContent = `${appState.streak} days`;
             document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
@@ -422,6 +551,7 @@
         function resetStats() {
             if(confirm("Reset all statistics?")) {
                 appState.totalAnswered = 0;
+                appState.mistakesList = [];
                 saveAppState();
                 loadAppState();
                 closeProfileModal();
@@ -429,7 +559,6 @@
             }
         }
 
-        // Boot execution
         loadAppState();
         loadRandomChallenge();
     </script>

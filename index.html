@@ -9,25 +9,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>body { background-color: var(--tg-theme-bg-color, #0b0f19); }</style>
+    <style>
+        body { 
+            background: radial-gradient(circle at top, #0f172a 0%, #030712 100%); 
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
+        }
+    </style>
 </head>
-<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-between p-3 sm:p-4 selection:bg-emerald-500 selection:text-slate-950">
+<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-between p-3 sm:p-5 selection:bg-emerald-500 selection:text-slate-950">
 
     <!-- Header & Profile Bar -->
-    <header class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-lg flex items-center justify-between shrink-0 mb-3">
+    <header class="w-full max-w-xl bg-slate-900/90 backdrop-blur-md border border-slate-800/80 rounded-2xl p-3.5 shadow-xl flex items-center justify-between shrink-0 mb-3">
         <div class="flex items-center space-x-3">
-            <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30">
-                <i class="fa-solid fa-book-quran text-lg"></i>
+            <div class="bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30 shadow-inner">
+                <i class="fa-solid fa-book-quran text-base"></i>
             </div>
             <div>
-                <h1 class="font-bold text-sm text-white">Ayah Quiz</h1>
-                <p class="text-[10px] text-emerald-400 font-semibold" id="user-badge-text">Novice Memorizer</p>
+                <h1 class="font-bold text-sm text-white tracking-wide">Ayah Quiz</h1>
+                <p class="text-[10px] text-emerald-400 font-semibold tracking-wider" id="user-badge-text">Novice Memorizer</p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
             <!-- Pro Upgrade Button -->
-            <button type="button" onclick="openProModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs text-amber-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1 cursor-pointer">
-                <i class="fa-solid fa-crown"></i>
+            <button type="button" onclick="openProModal()" class="bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/40 text-xs text-amber-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1.5 cursor-pointer shadow-sm">
+                <i class="fa-solid fa-crown text-[11px]"></i>
                 <span id="pro-btn-text">Go Pro</span>
             </button>
             <button type="button" onclick="openProfileModal()" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-emerald-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1.5 cursor-pointer">
@@ -38,75 +45,78 @@
     </header>
 
     <!-- Main Game Container -->
-    <main class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 overflow-y-auto flex-1 my-1">
+    <main class="w-full max-w-xl bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-4 sm:p-6 glow-emerald space-y-4 overflow-y-auto flex-1 my-1">
         
         <!-- Stats Mini Dashboard -->
-        <div class="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
+        <div class="grid grid-cols-3 gap-2 bg-slate-900/60 p-3 rounded-2xl border border-slate-800/60 text-center shadow-inner">
             <div>
-                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Streak</p>
-                <p class="text-xs font-extrabold text-amber-400 mt-0.5"><i class="fa-solid fa-fire"></i> <span id="stat-streak">0</span>d</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Streak</p>
+                <p class="text-xs font-extrabold text-amber-400 mt-0.5"><i class="fa-solid fa-fire text-amber-500"></i> <span id="stat-streak">0</span>d</p>
             </div>
-            <div class="border-x border-slate-800">
-                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Answered</p>
+            <div class="border-x border-slate-800/80">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Answered</p>
                 <p class="text-xs font-extrabold text-emerald-400 mt-0.5" id="stat-total">0</p>
             </div>
             <div>
-                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Mistakes</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Mistakes</p>
                 <p class="text-xs font-extrabold text-rose-400 mt-0.5" id="stat-mistakes">0</p>
             </div>
         </div>
 
         <!-- Mode Switcher, Pro Filters & Input -->
-        <div class="flex flex-col gap-2.5 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+        <div class="flex flex-col gap-2.5 bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800/60">
             <div class="flex items-center space-x-2 w-full">
-                <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-900 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500 flex-1">
-                <button type="button" onclick="loadCustomAyah()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap cursor-pointer">
+                <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-950 border border-slate-700/80 text-xs text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500 flex-1 shadow-inner">
+                <button type="button" onclick="loadCustomAyah()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition whitespace-nowrap cursor-pointer shadow-md shadow-emerald-600/20">
                     Load
                 </button>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="loadRandomChallenge()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold py-2 rounded-xl transition border border-slate-700 cursor-pointer">
-                    <i class="fa-solid fa-shuffle mr-1"></i> Random Quiz
+                <button type="button" onclick="loadRandomChallenge()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold py-2.5 rounded-xl transition border border-slate-700/80 cursor-pointer shadow-sm">
+                    <i class="fa-solid fa-shuffle mr-1.5"></i> Random Quiz
                 </button>
-                <button type="button" onclick="openFilterModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-bold px-3 py-2 rounded-xl transition border border-amber-500/30 cursor-pointer">
-                    <i class="fa-solid fa-filter mr-1"></i> Filters <span id="filter-tag" class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-300">All</span>
+                <button type="button" onclick="openFilterModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-bold px-3.5 py-2.5 rounded-xl transition border border-amber-500/30 cursor-pointer shadow-sm flex items-center space-x-1.5">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>Filters</span>
+                    <span id="filter-tag" class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-300 font-bold">All</span>
                 </button>
             </div>
         </div>
 
-        <div class="flex items-center justify-between">
-            <span id="question-badge" class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-500/20">
-                Ayah Quiz
+        <div class="flex items-center justify-between px-1">
+            <span id="question-badge" class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-500/20 shadow-sm">
+                Ayah Challenge
             </span>
             <div class="flex items-center space-x-2">
-                <!-- Audio Playback Button -->
-                <button type="button" id="audio-play-btn" onclick="playAyahAudio()" class="hidden bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer" title="Listen Recitation">
+                <!-- Pro Locked Audio Playback Button -->
+                <button type="button" id="audio-play-btn" onclick="playAyahAudio()" class="hidden bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer flex items-center space-x-1.5 shadow-sm" title="Listen Recitation">
                     <i class="fa-solid fa-volume-high"></i>
+                    <span id="audio-btn-label" class="text-[10px] font-semibold">Audio</span>
                 </button>
-                <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400">0</strong></span>
+                <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400 font-extrabold">0</strong></span>
             </div>
         </div>
 
-        <div class="space-y-3 text-center py-1">
-            <h2 id="challenge-prompt" class="text-xs font-bold text-slate-400 uppercase tracking-wide">Identify the correct reference:</h2>
-            <div id="arabic-verse" class="text-xl sm:text-2xl font-serif text-emerald-300 bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-slate-800 leading-loose">
+        <div class="space-y-3.5 text-center py-2">
+            <h2 id="challenge-prompt" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Identify the correct reference:</h2>
+            <div id="arabic-verse" class="text-xl sm:text-2xl font-serif text-emerald-300 bg-slate-900/50 p-5 sm:p-6 rounded-2xl border border-slate-800/80 leading-loose shadow-inner">
                 Initializing App...
             </div>
-            <p id="verse-translation" class="text-xs text-slate-300 italic px-2"></p>
-            <p id="verse-reference-tag" class="text-xs font-bold text-emerald-400"></p>
+            <p id="verse-translation" class="text-xs text-slate-300 italic px-3 leading-relaxed"></p>
+            <p id="verse-reference-tag" class="text-xs font-bold text-emerald-400 tracking-wide"></p>
         </div>
 
         <!-- Options Container -->
         <div id="options-container" class="grid grid-cols-1 gap-2.5"></div>
 
         <!-- Next Button -->
-        <button type="button" onclick="loadRandomChallenge()" id="next-btn" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20 mt-2 cursor-pointer">
-            Next Ayah Challenge <i class="fa-solid fa-arrow-right ml-1"></i>
+        <button type="button" onclick="loadRandomChallenge()" id="next-btn" class="hidden w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/25 mt-2 cursor-pointer tracking-wider">
+            Next Ayah Challenge <i class="fa-solid fa-arrow-right ml-1.5"></i>
         </button>
     </main>
 
     <!-- Pro Filter Modal -->
-    <div id="filter-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="filter-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-white flex items-center space-x-2">
@@ -117,7 +127,7 @@
             </div>
             
             <div class="space-y-3 text-xs text-slate-300">
-                <p class="text-slate-400">Filter quiz questions by specific Juz or mode:</p>
+                <p class="text-slate-400">Filter quiz questions by specific Juz or drill focus:</p>
                 <div class="space-y-2">
                     <label class="block font-bold text-slate-400">Select Range / Juz</label>
                     <select id="filter-select" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500">
@@ -134,7 +144,7 @@
             </div>
 
             <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="applyFilter()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition cursor-pointer">
+                <button type="button" onclick="applyFilter()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition cursor-pointer shadow-md">
                     Apply Filter
                 </button>
             </div>
@@ -142,7 +152,7 @@
     </div>
 
     <!-- Pro Upgrade Modal -->
-    <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-white flex items-center space-x-2">
@@ -153,33 +163,32 @@
             </div>
             
             <div class="space-y-3 text-xs text-slate-300">
-                <p class="text-slate-400">Unlock full access to advanced features to elevate your memorization journey:</p>
-                <ul class="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Targeted Juz (1-30) & Surah Filters</span></li>
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Audio Recitation playback integration</span></li>
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Advanced Mistake Analytics & Drill Modes</span></li>
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Exclusive Pro Supporter Badge ⭐</span></li>
+                <p class="text-slate-400">Upgrade to Pro to accelerate your hifz workflow:</p>
+                <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Audio Recitation</strong> playback (Mishary Alafasy)</span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Daily Memorization Bookmark</strong> (Save spot)</span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
                 </ul>
             </div>
 
-            <!-- Manual Telebirr Payment Box (25 ETB) -->
-            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Manual Transfer (25 ETB)</span></p>
-                <p class="text-slate-300">Send 25 ETB via Telebirr to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
-                <p class="text-[11px] text-slate-400">After payment, send your transaction screenshot to the bot chat to get activated instantly!</p>
+            <!-- Manual Alternative / Info -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-1.5 text-[11px]">
+                <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Alternative Telebirr Option (25 ETB)</span></p>
+                <p class="text-slate-400">Send 25 ETB to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>) & message screenshot to bot.</p>
             </div>
 
             <div class="space-y-2 pt-1">
-                <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
-                    <i class="fa-solid fa-star text-amber-300"></i>
-                    <span>Pay with Telegram Stars (10 ⭐)</span>
+                <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-star text-amber-300 text-sm"></i>
+                    <span>Unlock via Telegram Stars (10 ⭐)</span>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Profile Modal -->
-    <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-white flex items-center space-x-2">
@@ -268,7 +277,6 @@
             }
         } catch (err) {}
 
-        // --- BACKEND PRO STATUS SYNC ---
         async function syncProStatusFromBackend() {
             try {
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
@@ -289,7 +297,7 @@
 
         function loadAppState() {
             try {
-                const saved = localStorage.getItem('ayahquiz_profile_v9');
+                const saved = localStorage.getItem('ayahquiz_profile_v10');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     appState = { ...appState, ...parsed };
@@ -324,7 +332,7 @@
 
         function saveAppState() {
             try {
-                localStorage.setItem('ayahquiz_profile_v9', JSON.stringify(appState));
+                localStorage.setItem('ayahquiz_profile_v10', JSON.stringify(appState));
             } catch(e) {}
         }
 
@@ -372,6 +380,9 @@
                 const randomMistake = appState.mistakesList[Math.floor(Math.random() * appState.mistakesList.length)];
                 sNum = randomMistake.surahNum;
                 aNum = randomMistake.ayahNum;
+            } else if (appState.activeFilter.startsWith("juz")) {
+                sNum = surahs[Math.floor(Math.random() * surahs.length)].number;
+                aNum = Math.floor(Math.random() * 20) + 1;
             } else {
                 const randomSurahObj = surahs[Math.floor(Math.random() * surahs.length)];
                 sNum = randomSurahObj.number;
@@ -380,7 +391,7 @@
 
             currentAyahData = await fetchAyahFromAPI(sNum, aNum);
             if (!currentAyahData) {
-                currentAyahData = await fetchAyahFromAPI(2, 255) || {
+                currentAyahData = {
                     surahNum: 2,
                     ayahNum: 255,
                     arabic: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ",
@@ -408,7 +419,7 @@
 
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = options.map(opt => `
-                <button type="button" onclick="checkAnswer('${opt.replace(/'/g, "\\'")}', '${currentAyahData.reference.replace(/'/g, "\\'")}')" class="w-full text-left bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl transition font-medium flex items-center justify-between cursor-pointer">
+                <button type="button" onclick="checkAnswer('${opt.replace(/'/g, "\\'")}', '${currentAyahData.reference.replace(/'/g, "\\'")}')" class="w-full text-left bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl transition font-medium flex items-center justify-between cursor-pointer shadow-sm">
                     <span>${opt}</span>
                     <i class="fa-regular fa-circle text-slate-600"></i>
                 </button>
@@ -431,7 +442,7 @@
             document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
             document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
             if(currentAyahData.audio) document.getElementById('audio-play-btn').classList.remove('hidden');
-            document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded!</p>`;
+            document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded Successfully!</p>`;
             
             const nextBtn = document.getElementById('next-btn');
             nextBtn.classList.remove('hidden');
@@ -439,6 +450,11 @@
         }
 
         function playAyahAudio() {
+            if (!appState.isPro) {
+                alert("Audio recitation playback is a Pro feature. Upgrade to Pro to unlock!");
+                openProModal();
+                return;
+            }
             if (!currentAyahData || !currentAyahData.audio) return;
             if (audioPlayer) audioPlayer.pause();
             audioPlayer = new Audio(currentAyahData.audio);
@@ -450,13 +466,13 @@
             for (let btn of buttons) {
                 btn.disabled = true;
                 if (btn.textContent.trim() === correct) {
-                    btn.className = "w-full text-left bg-emerald-950/60 border border-emerald-500 text-xs text-emerald-300 p-3.5 rounded-xl font-bold flex items-center justify-between";
+                    btn.className = "w-full text-left bg-emerald-950/60 border border-emerald-500 text-xs text-emerald-300 p-3.5 rounded-xl font-bold flex items-center justify-between shadow-sm";
                 } else if (btn.textContent.trim() === selected && selected !== correct) {
-                    btn.className = "w-full text-left bg-rose-950/60 border border-rose-500 text-xs text-rose-300 p-3.5 rounded-xl font-bold flex items-center justify-between";
+                    btn.className = "w-full text-left bg-rose-950/60 border border-rose-500 text-xs text-rose-300 p-3.5 rounded-xl font-bold flex items-center justify-between shadow-sm";
                 }
             }
 
-            document.getElementById('verse-reference-tag').textContent = `Correct: ${correct}`;
+            document.getElementById('verse-reference-tag').textContent = `Reference: ${correct}`;
 
             if (selected === correct) {
                 score += 10;
@@ -546,7 +562,7 @@
             } catch (e) {
                 console.warn("Could not fetch invoice link from backend:", e);
             }
-            alert("To pay with Stars, make sure your bot backend has the invoice generator configured at https://ayah-quiz-backend.onrender.com/api/create-invoice");
+            alert("To pay with Stars, ensure your bot backend is active at https://ayah-quiz-backend.onrender.com/api/create-invoice");
         }
 
         function openProfileModal() {

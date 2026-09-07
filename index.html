@@ -759,24 +759,32 @@
             document.getElementById('modal-bookmarks').textContent = (appState.bookmarksList || []).length;
             document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
             
-            // Render bookmarks in profile container
+            // Render bookmarks with individual delete triggers
             const container = document.getElementById('profile-bookmarks-list');
             if (!appState.bookmarksList || appState.bookmarksList.length === 0) {
                 container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>`;
             } else {
-                container.innerHTML = appState.bookmarksList.map(b => `
+                container.innerHTML = appState.bookmarksList.map((b, index) => `
                     <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
-                        <span class="font-medium text-amber-300">${b.reference || `Surah ${b.surahNum}:${b.ayahNum}`}</span>
-                        <button type="button" onclick="loadSpecificAyah(${b.surahNum}, ${b.ayahNum})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2.5 py-1 rounded-md transition font-bold cursor-pointer">
-                            Load
-                        </button>
+                        <span class="font-medium text-amber-300 truncate max-w-[160px]">${b.reference || `Surah ${b.surahNum}:${b.ayahNum}`}</span>
+                        <div class="flex items-center space-x-1.5">
+                            <button type="button" onclick="loadSpecificAyah(${b.surahNum}, ${b.ayahNum})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-md transition font-bold cursor-pointer" title="Load Ayah">
+                                Load
+                            </button>
+                            <button type="button" onclick="removeBookmarkByIndex(${index})" class="bg-rose-950/60 hover:bg-rose-900 text-rose-400 text-[10px] px-2 py-1 rounded-md transition border border-rose-900/50 cursor-pointer" title="Delete Bookmark">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
                     </div>
-                `).join('');
+                `).join('').concat(`
+                    <button type="button" onclick="clearAllBookmarks()" class="w-full mt-2 bg-rose-950/30 hover:bg-rose-900/40 text-rose-400 border border-rose-900/40 text-[11px] font-bold py-2 rounded-xl transition cursor-pointer">
+                        Clear All Bookmarks
+                    </button>
+                `);
             }
 
             document.getElementById('profile-modal').classList.remove('hidden');
         }
-
         function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
 
         function saveProfile() {
@@ -801,6 +809,64 @@
 
         loadAppState();
         loadRandomChallenge();
+        function removeBookmarkByIndex(index) {
+            if (!appState.bookmarksList) return;
+            appState.bookmarksList.splice(index, 1);
+            saveAppState();
+            
+            // Refresh counts and UI inside the modal
+            document.getElementById('modal-bookmarks').textContent = appState.bookmarksList.length;
+            document.getElementById('bookmark-count-badge').textContent = appState.bookmarksList.length;
+            updateBookmarkButtonVisual();
+            
+            // Re-render the profile bookmarks view
+            openProfileModal();
+        }
+
+        function clearAllBookmarks() {
+            if (confirm("Are you sure you want to delete all bookmarked verses?")) {
+                appState.bookmarksList = [];
+                saveAppState();
+                
+                document.getElementById('modal-bookmarks').textContent = 0;
+                document.getElementById('bookmark-count-badge').textContent = 0;
+                updateBookmarkButtonVisual();
+                
+                openProfileModal();
+            }
+        }function openProfileModal() {
+    document.getElementById('username-input').value = appState.name;
+    document.getElementById('modal-total').textContent = appState.totalAnswered;
+    document.getElementById('modal-mistakes').textContent = (appState.mistakesList || []).length;
+    document.getElementById('modal-bookmarks').textContent = (appState.bookmarksList || []).length;
+    document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
+    
+    // Render bookmarks with individual delete triggers
+    const container = document.getElementById('profile-bookmarks-list');
+    if (!appState.bookmarksList || appState.bookmarksList.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>`;
+    } else {
+        container.innerHTML = appState.bookmarksList.map((b, index) => `
+                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
+                        <span class="font-medium text-amber-300 truncate max-w-[160px]">${b.reference || `Surah ${b.surahNum}:${b.ayahNum}`}</span>
+                        <div class="flex items-center space-x-1.5">
+                            <button type="button" onclick="loadSpecificAyah(${b.surahNum}, ${b.ayahNum})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-md transition font-bold cursor-pointer" title="Load Ayah">
+                                Load
+                            </button>
+                            <button type="button" onclick="removeBookmarkByIndex(${index})" class="bg-rose-950/60 hover:bg-rose-900 text-rose-400 text-[10px] px-2 py-1 rounded-md transition border border-rose-900/50 cursor-pointer" title="Delete Bookmark">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('').concat(`
+                    <button type="button" onclick="clearAllBookmarks()" class="w-full mt-2 bg-rose-950/30 hover:bg-rose-900/40 text-rose-400 border border-rose-900/40 text-[11px] font-bold py-2 rounded-xl transition cursor-pointer">
+                        Clear All Bookmarks
+                    </button>
+                `);
+    }
+    
+    document.getElementById('profile-modal').classList.remove('hidden');
+}
     </script>
 </body>
 </html>

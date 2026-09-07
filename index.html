@@ -152,40 +152,51 @@
     </div>
 
     <!-- Pro Upgrade Modal -->
-    <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-crown text-amber-400"></i>
-                    <span>Ayah Quiz Pro</span>
-                </h3>
-                <button type="button" onclick="closeProModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
-            </div>
+<!-- Pro Upgrade Modal -->
+<div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                <i class="fa-solid fa-crown text-amber-400"></i>
+                <span>Ayah Quiz Pro</span>
+            </h3>
+            <button type="button" onclick="closeProModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
+        </div>
+        
+        <div class="space-y-3 text-xs text-slate-300">
+            <p class="text-slate-400">Upgrade to Pro to accelerate your hifz workflow:</p>
+            <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
+                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Audio Recitation</strong> playback (Mishary Alafasy)</span></li>
+                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
+                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Daily Memorization Bookmark</strong> (Save spot)</span></li>
+                <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
+            </ul>
+        </div>
+
+        <!-- Manual Alternative & Direct DM Button -->
+        <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2.5 text-[11px]">
+            <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Option (25 ETB)</span></p>
+            <p class="text-slate-400">Send 25 ETB to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
+            <a href="https://t.me/luck_7n" target="_blank" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2 px-3 rounded-xl transition flex items-center justify-center space-x-2 text-xs cursor-pointer shadow-sm">
+                <i class="fa-brands fa-telegram text-sm"></i>
+                <span>Send Screenshot to @luck_7n</span>
+            </a>
+        </div>
+
+        <div class="space-y-2 pt-1">
+            <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg shadow-blue-600/20">
+                <i class="fa-solid fa-star text-amber-300 text-sm"></i>
+                <span>Unlock via Telegram Stars (10 ⭐)</span>
+            </button>
             
-            <div class="space-y-3 text-xs text-slate-300">
-                <p class="text-slate-400">Upgrade to Pro to accelerate your hifz workflow:</p>
-                <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Audio Recitation</strong> playback (Mishary Alafasy)</span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Daily Memorization Bookmark</strong> (Save spot)</span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
-                </ul>
-            </div>
-
-            <!-- Manual Alternative / Info -->
-            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-1.5 text-[11px]">
-                <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Alternative Telebirr Option (25 ETB)</span></p>
-                <p class="text-slate-400">Send 25 ETB to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>) & message screenshot to bot.</p>
-            </div>
-
-            <div class="space-y-2 pt-1">
-                <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg shadow-blue-600/20">
-                    <i class="fa-solid fa-star text-amber-300 text-sm"></i>
-                    <span>Unlock via Telegram Stars (10 ⭐)</span>
-                </button>
-            </div>
+            <!-- Developer Testing Bypass Button -->
+            <button type="button" onclick="devBypassPro()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-mono text-[10px] py-2 rounded-xl transition border border-slate-700 cursor-pointer">
+                🛠️ [Dev Test] Instant Pro Bypass
+            </button>
         </div>
     </div>
+</div>
+
 
     <!-- Profile Modal -->
     <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -598,6 +609,14 @@
 
         loadAppState();
         loadRandomChallenge();
+        function devBypassPro() {
+    appState.isPro = true;
+    saveAppState();
+    updateBadge();
+    closeProModal();
+    alert("Developer Pro Bypass Active! Enjoy testing Pro features.");
+    loadRandomChallenge();
+}
     </script>
 </body>
 </html>

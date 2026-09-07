@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <!-- Mode Switcher, Pro Filters & Input -->
+        <!-- Mode Switcher, Pro Filters & Hifz Plan Button Grid -->
         <div class="flex flex-col gap-2.5 bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800/60">
             <div class="flex items-center space-x-2 w-full">
                 <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-950 border border-slate-700/80 text-xs text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500 flex-1 shadow-inner">
@@ -71,14 +71,16 @@
                     Load
                 </button>
             </div>
-            <div class="flex items-center gap-2">
-                <button type="button" onclick="loadRandomChallenge()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold py-2.5 rounded-xl transition border border-slate-700/80 cursor-pointer shadow-sm">
-                    <i class="fa-solid fa-shuffle mr-1.5"></i> Random Quiz
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="loadRandomChallenge()" class="bg-slate-900 hover:bg-slate-800 text-emerald-400 text-[11px] font-bold py-2.5 rounded-xl transition border border-slate-700/80 cursor-pointer shadow-sm flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-shuffle"></i> <span>Quiz</span>
                 </button>
-                <button type="button" onclick="openFilterModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-bold px-3.5 py-2.5 rounded-xl transition border border-amber-500/30 cursor-pointer shadow-sm flex items-center space-x-1.5">
+                <button type="button" onclick="openFilterModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-[11px] font-bold py-2.5 rounded-xl transition border border-amber-500/30 cursor-pointer shadow-sm flex items-center justify-center space-x-1">
                     <i class="fa-solid fa-filter"></i>
                     <span>Filters</span>
-                    <span id="filter-tag" class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-300 font-bold">All</span>
+                </button>
+                <button type="button" onclick="openHifzModal()" class="bg-slate-900 hover:bg-slate-800 text-blue-400 text-[11px] font-bold py-2.5 rounded-xl transition border border-blue-500/30 cursor-pointer shadow-sm flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-map-location-dot"></i> <span>Hifz Plan</span>
                 </button>
             </div>
         </div>
@@ -158,6 +160,52 @@
         </div>
     </div>
 
+    <!-- Pro Hifz Routine Modal -->
+    <div id="hifz-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-map-location-dot text-blue-400"></i>
+                    <span>Pro Hifz Framework</span>
+                </h3>
+                <button type="button" onclick="closeHifzModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            
+            <div class="space-y-3 overflow-y-auto max-h-[60vh] pr-1">
+                <p class="text-xs text-slate-400">Follow this daily 4-step routine to build a rock-solid memory:</p>
+                
+                <div class="space-y-2.5 text-[11px]">
+                    <!-- Step 1 -->
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
+                        <h4 class="font-bold text-emerald-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-book-open mr-2"></i>1. Sabaq (New Memorization)</h4>
+                        <p class="text-slate-300 leading-relaxed">Memorize <strong>3 to 5 new ayahs</strong> per day during peak focus hours (e.g., right after Fajr). Use the HQ audio to perfect your pronunciation.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
+                        <h4 class="font-bold text-amber-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-rotate-left mr-2"></i>2. Sabqi (Recent Revision)</h4>
+                        <p class="text-slate-300 leading-relaxed">Review the last <strong>1-2 Juz</strong> currently being memorized to anchor them securely in your long-term memory.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
+                        <h4 class="font-bold text-purple-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-layer-group mr-2"></i>3. Manzil (Old Revision)</h4>
+                        <p class="text-slate-300 leading-relaxed">Cycle through your previously memorized Juz. Aim to recite <strong>at least 1 Juz per day</strong> to ensure complete retention.</p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
+                        <h4 class="font-bold text-rose-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-dumbbell mr-2"></i>4. Active Drill Test</h4>
+                        <p class="text-slate-300 leading-relaxed">Run 15–20 questions in the Ayah Quiz app using the <strong>Mistake Drills</strong> and <strong>Juz Filters</strong> to identify and fix your weak spots.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="button" onclick="closeHifzModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3.5 rounded-xl transition cursor-pointer border border-slate-700 shadow-sm">
+                    Got it! Let's Practice
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Pro Upgrade Modal -->
     <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
@@ -174,7 +222,7 @@
                 <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
                     <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Recitation Audio & Speed Control (0.75x / 1x)</strong></span></li>
                     <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Hard Verse Bookmarking & Review</strong></span></li>
+                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Hard Verse Bookmarking & Profile Review</strong></span></li>
                     <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
                 </ul>
             </div>
@@ -203,18 +251,18 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
+    <!-- Profile Modal with Bookmarked Verses Section -->
     <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
             <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-white flex items-center space-x-2">
                     <i class="fa-solid fa-user-circle text-emerald-400"></i>
-                    <span>Player Profile</span>
+                    <span>Player Profile & Bookmarks</span>
                 </h3>
                 <button type="button" onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
             
-            <div class="space-y-3">
+            <div class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
                 <div>
                     <label class="block text-[11px] text-slate-400 font-bold mb-1">Your Name</label>
                     <input type="text" id="username-input" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500" placeholder="Enter your name">
@@ -236,6 +284,17 @@
                     <div class="flex justify-between text-slate-400">
                         <span>Mistakes Recorded:</span>
                         <span id="modal-mistakes" class="font-bold text-rose-400">0</span>
+                    </div>
+                </div>
+
+                <!-- Bookmarked Verses Quick-Recall List -->
+                <div class="space-y-2 pt-1">
+                    <h4 class="text-xs font-bold text-amber-400 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>Saved Bookmarks (Recall & Load)</span>
+                    </h4>
+                    <div id="profile-bookmarks-list" class="space-y-1.5 max-h-36 overflow-y-auto bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs text-slate-300">
+                        <p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>
                     </div>
                 </div>
             </div>
@@ -300,7 +359,7 @@
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
                     const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
                     
-                    // Secure Dev ID check
+                    // Secure Dev ID check (6545688842)
                     if (Number(userId) === 6545688842) {
                         appState.isPro = true;
                         const devBtn = document.getElementById('dev-bypass-btn');
@@ -320,7 +379,7 @@
 
         function loadAppState() {
             try {
-                const saved = localStorage.getItem('ayahquiz_profile_v11');
+                const saved = localStorage.getItem('ayahquiz_profile_v12');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     appState = { ...appState, ...parsed };
@@ -356,7 +415,7 @@
 
         function saveAppState() {
             try {
-                localStorage.setItem('ayahquiz_profile_v11', JSON.stringify(appState));
+                localStorage.setItem('ayahquiz_profile_v12', JSON.stringify(appState));
             } catch(e) {}
         }
 
@@ -488,6 +547,29 @@
             nextBtn.scrollIntoView({ behavior: 'smooth' });
         }
 
+        async function loadSpecificAyah(surahNum, ayahNum) {
+            closeProfileModal();
+            currentAyahData = await fetchAyahFromAPI(surahNum, ayahNum);
+            if (!currentAyahData) {
+                alert("Could not load bookmarked ayah.");
+                return;
+            }
+            document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
+            document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
+            document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
+            
+            if(appState.isPro) {
+                if(currentAyahData.audio) document.getElementById('audio-controls-group').classList.remove('hidden');
+                document.getElementById('bookmark-btn').classList.remove('hidden');
+                updateBookmarkButtonVisual();
+            }
+            
+            document.getElementById('options-container').innerHTML = `<p class="text-xs text-emerald-400 text-center py-2 font-bold">Loaded Bookmark: ${currentAyahData.reference}</p>`;
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.scrollIntoView({ behavior: 'smooth' });
+        }
+
         function playAyahAudio() {
             if (!appState.isPro) {
                 alert("Audio recitation playback is a Pro feature. Upgrade to Pro to unlock!");
@@ -526,12 +608,13 @@
                 appState.bookmarksList.splice(idx, 1);
                 alert("Ayah removed from bookmarks.");
             } else {
-                appState.bookmarksList.push({ surahNum: currentAyahData.surahNum, ayahNum: currentAyahData.ayahNum });
+                appState.bookmarksList.push({ surahNum: currentAyahData.surahNum, ayahNum: currentAyahData.ayahNum, reference: currentAyahData.reference });
                 alert("Ayah successfully bookmarked!");
             }
             saveAppState();
             updateBookmarkButtonVisual();
             document.getElementById('bookmark-count-badge').textContent = appState.bookmarksList.length;
+            document.getElementById('modal-bookmarks').textContent = appState.bookmarksList.length;
         }
 
         function updateBookmarkButtonVisual() {
@@ -599,6 +682,16 @@
         function openProModal() { document.getElementById('pro-modal').classList.remove('hidden'); }
         function closeProModal() { document.getElementById('pro-modal').classList.add('hidden'); }
 
+        function openHifzModal() {
+            if (!appState.isPro) {
+                alert("The Hifz Framework and Schedules are exclusive Pro features. Upgrade to unlock!");
+                openProModal();
+                return;
+            }
+            document.getElementById('hifz-modal').classList.remove('hidden');
+        }
+        function closeHifzModal() { document.getElementById('hifz-modal').classList.add('hidden'); }
+
         function openFilterModal() {
             if (!appState.isPro) {
                 alert("Targeted filters require Pro Access. Upgrade to unlock!");
@@ -665,6 +758,22 @@
             document.getElementById('modal-mistakes').textContent = (appState.mistakesList || []).length;
             document.getElementById('modal-bookmarks').textContent = (appState.bookmarksList || []).length;
             document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
+            
+            // Render bookmarks in profile container
+            const container = document.getElementById('profile-bookmarks-list');
+            if (!appState.bookmarksList || appState.bookmarksList.length === 0) {
+                container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>`;
+            } else {
+                container.innerHTML = appState.bookmarksList.map(b => `
+                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
+                        <span class="font-medium text-amber-300">${b.reference || `Surah ${b.surahNum}:${b.ayahNum}`}</span>
+                        <button type="button" onclick="loadSpecificAyah(${b.surahNum}, ${b.ayahNum})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2.5 py-1 rounded-md transition font-bold cursor-pointer">
+                            Load
+                        </button>
+                    </div>
+                `).join('');
+            }
+
             document.getElementById('profile-modal').classList.remove('hidden');
         }
 

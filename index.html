@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayah Quiz — Quran Memorization Challenge</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>body { background-color: var(--tg-theme-bg-color, #0b0f19); }</style>
+</head>
+<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-between p-4 selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- Header & Profile Bar -->
+    <header class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30">
+                <i class="fa-solid fa-book-quran text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm text-white">Ayah Quiz</h1>
+                <p class="text-[10px] text-emerald-400 font-semibold" id="user-badge-text">Novice Memorizer</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <!-- Pro Upgrade Button -->
+            <button onclick="openProModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs text-amber-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1">
+                <i class="fa-solid fa-crown"></i>
+                <span id="pro-btn-text">Go Pro</span>
+            </button>
+            <button onclick="openProfileModal()" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-emerald-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1.5">
+                <i class="fa-solid fa-user-gear"></i>
+                <span id="user-display-name">Lakin</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5 my-auto">
+        
+        <!-- Stats Mini Dashboard -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
+            <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Streak</p>
+                <p class="text-xs font-extrabold text-amber-400 mt-0.5"><i class="fa-solid fa-fire mr-1"></i><span id="stat-streak">0</span> days</p>
+            </div>
+            <div class="border-l border-slate-800">
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Answered</p>
+                <p class="text-xs font-extrabold text-emerald-400 mt-0.5" id="stat-total">0</p>
+            </div>
+        </div>
+
+        <!-- Mode Switcher & Input -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-900 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500 w-full sm:w-44">
+                <button onclick="loadCustomAyah()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap">
+                    Load
+                </button>
+            </div>
+            <button onclick="loadRandomChallenge()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition border border-slate-700">
+                <i class="fa-solid fa-shuffle mr-1"></i> Random Quiz
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <span id="question-badge" class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-500/20">
+                Ayah Quiz
+            </span>
+            <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400">0</strong></span>
+        </div>
+
+        <div class="space-y-3 text-center py-2">
+            <h2 id="challenge-prompt" class="text-xs font-bold text-slate-400 uppercase tracking-wide">Identify the correct reference:</h2>
+            <div id="arabic-verse" class="text-xl sm:text-2xl font-serif text-emerald-300 bg-slate-950/60 p-5 rounded-2xl border border-slate-800 leading-loose">
+                Loading Quran data...
+            </div>
+            <p id="verse-translation" class="text-xs text-slate-300 italic px-2"></p>
+            <p id="verse-reference-tag" class="text-xs font-bold text-emerald-400"></p>
+        </div>
+
+        <!-- Options Container -->
+        <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+
+        <!-- Next Button -->
+        <button onclick="loadRandomChallenge()" id="next-btn" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">
+            Next Ayah Challenge <i class="fa-solid fa-arrow-right ml-1"></i>
+        </button>
+    </main>
+
+    <!-- Pro Upgrade Modal -->
+    <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-crown text-amber-400"></i>
+                    <span>Ayah Quiz Pro</span>
+                </h3>
+                <button onclick="closeProModal()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            
+            <div class="space-y-3 text-xs text-slate-300">
+                <p class="text-slate-400">Unlock full access to advanced features to elevate your memorization journey:</p>
+                
+                <ul class="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Targeted Juz & Surah Specific Filters</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Audio Recitation playback integration</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Advanced Mistake Analytics & Drill Modes</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i> <span>Exclusive Pro Supporter Badge</span></li>
+                </ul>
+            </div>
+
+            <div class="space-y-2 pt-2">
+                <button onclick="payWithTelegramStars()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-star text-amber-300"></i>
+                    <span>Unlock with Telegram Stars (150 ⭐)</span>
+                </button>
+                <button onclick="payWithChapaLocal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Pay with Telebirr / Chapa (Local)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-user-circle text-emerald-400"></i>
+                    <span>Player Profile</span>
+                </h3>
+                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[11px] text-slate-400 font-bold mb-1">Your Name</label>
+                    <input type="text" id="username-input" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500" placeholder="Enter your name">
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5 text-xs">
+                    <div class="flex justify-between text-slate-400">
+                        <span>Account Status:</span>
+                        <span id="modal-pro-status" class="font-bold text-slate-400">Free Tier</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Total Verses Answered:</span>
+                        <span id="modal-total" class="font-bold text-emerald-400">0</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Current Streak:</span>
+                        <span id="modal-streak" class="font-bold text-amber-400">0 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="saveProfile()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition">
+                    Save Profile
+                </button>
+                <button onclick="resetStats()" class="bg-rose-950/40 hover:bg-rose-900/50 border border-rose-900/50 text-rose-400 font-bold text-xs px-4 py-3 rounded-xl transition">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-xl text-center py-3 space-y-1.5 text-slate-500 text-[11px]">
+        <p>Built with 💚 by <span class="text-slate-300 font-semibold">Lakin Awel</span></p>
+    </footer>
+
+    <script>
+        let score = 0;
+        let currentAyahData = null;
+        let surahListCache = [];
+
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const tgUser = tg.initDataUnsafe.user.first_name;
+                if (tgUser && appState.name === "Lakin") {
+                    appState.name = tgUser;
+                }
+            }
+        }
+
+        let appState = {
+            name: "Lakin",
+            streak: 0,
+            lastLoginDate: "",
+            totalAnswered: 0,
+            isPro: false
+        };
+
+        function loadAppState() {
+            const saved = localStorage.getItem('ayahquiz_profile_v5');
+            if (saved) {
+                try { appState = JSON.parse(saved); } catch(e) {}
+            }
+            
+            const today = new Date().toDateString();
+            if (appState.lastLoginDate !== today) {
+                const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toDateString();
+                if (appState.lastLoginDate === yesterday) {
+                    appState.streak++;
+                } else if (appState.lastLoginDate !== today) {
+                    if (!appState.streak) appState.streak = 1;
+                }
+                appState.lastLoginDate = today;
+                saveAppState();
+            }
+
+            document.getElementById('user-display-name').textContent = appState.name;
+            document.getElementById('stat-streak').textContent = appState.streak;
+            document.getElementById('stat-total').textContent = appState.totalAnswered;
+            
+            if (appState.isPro) {
+                document.getElementById('pro-btn-text').textContent = "PRO Active";
+            }
+            updateBadge();
+        }
+
+        function saveAppState() {
+            localStorage.setItem('ayahquiz_profile_v5', JSON.stringify(appState));
+        }
+
+        async function fetchSurahs() {
+            if (surahListCache.length > 0) return surahListCache;
+            const cached = localStorage.getItem('ayahquiz_surahs_v5');
+            if (cached) {
+                try {
+                    surahListCache = JSON.parse(cached);
+                    return surahListCache;
+                } catch(e) {}
+            }
+
+            try {
+                const res = await fetch(`https://api.alquran.cloud/v1/surah`);
+                const data = await res.json();
+                if (data && data.data) {
+                    surahListCache = data.data;
+                    localStorage.setItem('ayahquiz_surahs_v5', JSON.stringify(surahListCache));
+                }
+            } catch(e) {}
+            return surahListCache;
+        }
+
+        async function fetchAyahFromAPI(surahNum, ayahNum) {
+            const cacheKey = `ayah_cache_v5_${surahNum}_${ayahNum}`;
+            const cachedAyah = localStorage.getItem(cacheKey);
+
+            if (cachedAyah && !navigator.onLine) {
+                try { return JSON.parse(cachedAyah); } catch(e) {}
+            }
+
+            try {
+                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/editions/quran-uthmani,en.sahih`);
+                const data = await res.json();
+                if(data && data.data && data.data.length === 2) {
+                    const resultObj = {
+                        arabic: data.data[0].text,
+                        translation: data.data[1].text,
+                        reference: `${data.data[0].surah.englishName} (${surahNum}:${ayahNum})`
+                    };
+                    localStorage.setItem(cacheKey, JSON.stringify(resultObj));
+                    return resultObj;
+                }
+            } catch(e) {
+                if (cachedAyah) {
+                    try { return JSON.parse(cachedAyah); } catch(err) {}
+                }
+            }
+            return null;
+        }
+
+        async function loadRandomChallenge() {
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('arabic-verse').textContent = "Fetching Ayah...";
+            document.getElementById('verse-translation').textContent = "";
+            document.getElementById('verse-reference-tag').textContent = "";
+            document.getElementById('options-container').innerHTML = "";
+
+            const surahs = await fetchSurahs();
+            if(!surahs.length) {
+                document.getElementById('arabic-verse').textContent = "Offline mode: Connect once to load verse database.";
+                return;
+            }
+
+            const randomSurahObj = surahs[Math.floor(Math.random() * surahs.length)];
+            const sNum = randomSurahObj.number;
+            const aNum = Math.floor(Math.random() * randomSurahObj.numberOfAyahs) + 1;
+
+            currentAyahData = await fetchAyahFromAPI(sNum, aNum);
+            if (!currentAyahData) {
+                loadRandomChallenge();
+                return;
+            }
+
+            document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
+            document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
+
+            let options = [currentAyahData.reference];
+            while(options.length < 4) {
+                const dummySurah = surahs[Math.floor(Math.random() * surahs.length)];
+                const dummyAyahNum = Math.floor(Math.random() * dummySurah.numberOfAyahs) + 1;
+                const dummyRefStr = `${dummySurah.englishName} (${dummySurah.number}:${dummyAyahNum})`;
+                if(!options.includes(dummyRefStr)) options.push(dummyRefStr);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = options.map(opt => `
+                <button onclick="checkAnswer('${opt.replace(/'/g, "\\'")}', '${currentAyahData.reference.replace(/'/g, "\\'")}')" class="w-full text-left bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl transition font-medium flex items-center justify-between">
+                    <span>${opt}</span>
+                    <i class="fa-regular fa-circle text-slate-600"></i>
+                </button>
+            `).join('');
+        }
+
+        async function loadCustomAyah() {
+            const val = document.getElementById('custom-ref-input').value.trim();
+            if(!val.includes(':')) {
+                alert("Format: Surah:Ayah (e.g. 2:255)");
+                return;
+            }
+            const [s, a] = val.split(':');
+            currentAyahData = await fetchAyahFromAPI(s, a);
+            if (!currentAyahData) {
+                alert("Verse could not be loaded.");
+                return;
+            }
+            document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
+            document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
+            document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
+            document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded!</p>`;
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        async function checkAnswer(selected, correct) {
+            const buttons = document.getElementById('options-container').getElementsByTagName('button');
+            for (let btn of buttons) {
+                btn.disabled = true;
+                if (btn.textContent.trim() === correct) {
+                    btn.className = "w-full text-left bg-emerald-950/60 border border-emerald-500 text-xs text-emerald-300 p-3.5 rounded-xl font-bold flex items-center justify-between";
+                } else if (btn.textContent.trim() === selected && selected !== correct) {
+                    btn.className = "w-full text-left bg-rose-950/60 border border-rose-500 text-xs text-rose-300 p-3.5 rounded-xl font-bold flex items-center justify-between";
+                }
+            }
+
+            document.getElementById('verse-reference-tag').textContent = `Correct: ${correct}`;
+
+            if (selected === correct) {
+                score += 10;
+                document.getElementById('score-val').textContent = score;
+                appState.totalAnswered++;
+                saveAppState();
+                document.getElementById('stat-total').textContent = appState.totalAnswered;
+                updateBadge();
+            }
+
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function updateBadge() {
+            let badgeTitle = "Novice Memorizer";
+            let total = appState.totalAnswered;
+            if (appState.isPro) badgeTitle = "Pro Supporter ⭐";
+            else if (total >= 50) badgeTitle = "Quran Scholar 🌟";
+            else if (total >= 25) badgeTitle = "Advanced Hafiz 📖";
+            else if (total >= 10) badgeTitle = "Dedicated Explorer ⚡";
+            document.getElementById('user-badge-text').textContent = badgeTitle;
+        }
+
+        function openProModal() { document.getElementById('pro-modal').classList.remove('hidden'); }
+        function closeProModal() { document.getElementById('pro-modal').classList.add('hidden'); }
+
+        function payWithTelegramStars() {
+            // Integration placeholder for Telegram Stars invoice trigger
+            if (window.Telegram && window.Telegram.WebApp) {
+                // const tg = window.Telegram.WebApp;
+                // tg.openInvoice(invoiceUrl);
+            }
+            appState.isPro = true;
+            saveAppState();
+            alert("Success! Pro features unlocked via Telegram Stars.");
+            closeProModal();
+            loadAppState();
+        }
+
+        function payWithChapaLocal() {
+            // Integration placeholder for Chapa checkout link redirect for local users
+            window.open("https://chapa.co", "_blank");
+            appState.isPro = true;
+            saveAppState();
+            alert("Redirecting to payment gateway... Pro features enabled!");
+            closeProModal();
+            loadAppState();
+        }
+
+        function openProfileModal() {
+            document.getElementById('username-input').value = appState.name;
+            document.getElementById('modal-total').textContent = appState.totalAnswered;
+            appState.streak = appState.streak || 1;
+            document.getElementById('modal-streak').textContent = `${appState.streak} days`;
+            document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+        function saveProfile() {
+            const val = document.getElementById('username-input').value.trim();
+            if (val) appState.name = val;
+            saveAppState();
+            document.getElementById('user-display-name').textContent = appState.name;
+            closeProfileModal();
+        }
+
+        function resetStats() {
+            if(confirm("Reset all statistics?")) {
+                appState.totalAnswered = 0;
+                saveAppState();
+                loadAppState();
+                closeProfileModal();
+                loadRandomChallenge();
+            }
+        }
+
+        loadAppState();
+        loadRandomChallenge();
+    </script>
+</body>
+  </html>

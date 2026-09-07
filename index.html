@@ -2,871 +2,1961 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#020617">
     <title>Ayah Quiz — Quran Memorization Challenge</title>
-    <!-- Telegram Web App SDK -->
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class' }</script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        };
+    </script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { 
-            background: radial-gradient(circle at top, #0f172a 0%, #030712 100%); 
+        * {
+            -webkit-tap-highlight-color: transparent;
         }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(16,185,129,.10), transparent 35%),
+                radial-gradient(circle at top right, rgba(20,184,166,.08), transparent 30%),
+                linear-gradient(180deg, #0f172a 0%, #020617 70%);
+        }
+
         .glow-emerald {
-            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 30px -8px rgba(16,185,129,.25);
+        }
+
+        .glass {
+            background: rgba(15,23,42,.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .modal-scroll {
+            max-height: 78vh;
+            overflow-y: auto;
+        }
+
+        .arabic {
+            font-family: "Amiri", "Noto Naskh Arabic", serif;
+            direction: rtl;
+        }
+
+        .answer-correct {
+            animation: correct .35s ease;
+        }
+
+        .answer-wrong {
+            animation: wrong .35s ease;
+        }
+
+        @keyframes correct {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes wrong {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .progress-bar {
+            transition: width .35s ease;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
         }
     </style>
 </head>
-<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-between p-3 sm:p-5 selection:bg-emerald-500 selection:text-slate-950">
 
-    <!-- Header & Profile Bar -->
-    <header class="w-full max-w-xl bg-slate-900/90 backdrop-blur-md border border-slate-800/80 rounded-2xl p-3.5 shadow-xl flex items-center justify-between shrink-0 mb-3">
-        <div class="flex items-center space-x-3">
-            <div class="bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30 shadow-inner">
-                <i class="fa-solid fa-book-quran text-base"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-sm text-white tracking-wide">Ayah Quiz</h1>
-                <p class="text-[10px] text-emerald-400 font-semibold tracking-wider" id="user-badge-text">Novice Memorizer</p>
-            </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <!-- Pro Upgrade Button -->
-            <button type="button" onclick="openProModal()" class="bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/40 text-xs text-amber-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1.5 cursor-pointer shadow-sm">
-                <i class="fa-solid fa-crown text-[11px]"></i>
-                <span id="pro-btn-text">Go Pro</span>
-            </button>
-            <button type="button" onclick="openProfileModal()" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-emerald-400 px-3 py-2 rounded-xl transition font-bold flex items-center space-x-1.5 cursor-pointer">
-                <i class="fa-solid fa-user-gear"></i>
-                <span id="user-display-name">Lakin</span>
-            </button>
-        </div>
-    </header>
+<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center p-3 sm:p-5">
 
-    <!-- Main Game Container -->
-    <main class="w-full max-w-xl bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-4 sm:p-6 glow-emerald space-y-4 overflow-y-auto flex-1 my-1">
-        
-        <!-- Stats Mini Dashboard -->
-        <div class="grid grid-cols-3 gap-2 bg-slate-900/60 p-3 rounded-2xl border border-slate-800/60 text-center shadow-inner">
-            <div>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Streak</p>
-                <p class="text-xs font-extrabold text-amber-400 mt-0.5"><i class="fa-solid fa-fire text-amber-500"></i> <span id="stat-streak">0</span>d</p>
-            </div>
-            <div class="border-x border-slate-800/80">
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Answered</p>
-                <p class="text-xs font-extrabold text-emerald-400 mt-0.5" id="stat-total">0</p>
-            </div>
-            <div>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Mistakes</p>
-                <p class="text-xs font-extrabold text-rose-400 mt-0.5" id="stat-mistakes">0</p>
-            </div>
+<header class="w-full max-w-xl glass border border-slate-800/80 rounded-2xl p-3.5 shadow-xl flex items-center justify-between mb-3">
+    <div class="flex items-center gap-3 min-w-0">
+        <div class="bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30">
+            <i class="fa-solid fa-book-quran"></i>
         </div>
 
-        <!-- Mode Switcher, Pro Filters & Hifz Plan Button Grid -->
-        <div class="flex flex-col gap-2.5 bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800/60">
-            <div class="flex items-center space-x-2 w-full">
-                <input type="text" id="custom-ref-input" placeholder="Surah:Ayah (e.g. 2:255)" class="bg-slate-950 border border-slate-700/80 text-xs text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500 flex-1 shadow-inner">
-                <button type="button" onclick="loadCustomAyah()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition whitespace-nowrap cursor-pointer shadow-md shadow-emerald-600/20">
-                    Load
-                </button>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="loadRandomChallenge()" class="bg-slate-900 hover:bg-slate-800 text-emerald-400 text-[11px] font-bold py-2.5 rounded-xl transition border border-slate-700/80 cursor-pointer shadow-sm flex items-center justify-center space-x-1.5">
-                    <i class="fa-solid fa-shuffle"></i> <span>Quiz</span>
-                </button>
-                <button type="button" onclick="openFilterModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-[11px] font-bold py-2.5 rounded-xl transition border border-amber-500/30 cursor-pointer shadow-sm flex items-center justify-center space-x-1">
-                    <i class="fa-solid fa-filter"></i>
-                    <span>Filters</span>
-                </button>
-                <button type="button" onclick="openHifzModal()" class="bg-slate-900 hover:bg-slate-800 text-blue-400 text-[11px] font-bold py-2.5 rounded-xl transition border border-blue-500/30 cursor-pointer shadow-sm flex items-center justify-center space-x-1.5">
-                    <i class="fa-solid fa-map-location-dot"></i> <span>Hifz Plan</span>
-                </button>
-            </div>
+        <div class="min-w-0">
+            <h1 class="font-bold text-sm text-white tracking-wide">Ayah Quiz</h1>
+            <p id="user-badge-text"
+               class="text-[10px] text-emerald-400 font-semibold tracking-wider truncate">
+                Novice Memorizer
+            </p>
         </div>
+    </div>
 
-        <div class="flex items-center justify-between px-1">
-            <span id="question-badge" class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-500/20 shadow-sm">
-                Ayah Challenge
-            </span>
-            <div class="flex items-center space-x-2">
-                <!-- Pro Audio Playback & Speed Controls -->
-                <div id="audio-controls-group" class="hidden flex items-center space-x-1 bg-slate-900 border border-slate-700 rounded-xl p-1">
-                    <button type="button" onclick="playAyahAudio()" class="text-emerald-400 text-xs px-2 py-1 hover:text-white transition cursor-pointer flex items-center space-x-1" title="Play Recitation">
-                        <i class="fa-solid fa-volume-high"></i>
-                    </button>
-                    <button type="button" onclick="toggleAudioSpeed()" id="speed-badge" class="text-[9px] font-extrabold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 cursor-pointer" title="Toggle Speed">1x</button>
-                </div>
-                <!-- Bookmark Toggle -->
-                <button type="button" id="bookmark-btn" onclick="toggleBookmarkCurrent()" class="hidden bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer shadow-sm" title="Bookmark Ayah">
-                    <i class="fa-solid fa-bookmark"></i>
-                </button>
-                <span class="text-xs text-slate-400">Score: <strong id="score-val" class="text-emerald-400 font-extrabold">0</strong></span>
-            </div>
-        </div>
-
-        <div class="space-y-3.5 text-center py-2">
-            <h2 id="challenge-prompt" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Identify the correct reference:</h2>
-            <div id="arabic-verse" class="text-xl sm:text-2xl font-serif text-emerald-300 bg-slate-900/50 p-5 sm:p-6 rounded-2xl border border-slate-800/80 leading-loose shadow-inner">
-                Initializing App...
-            </div>
-            <p id="verse-translation" class="text-xs text-slate-300 italic px-3 leading-relaxed"></p>
-            <p id="verse-reference-tag" class="text-xs font-bold text-emerald-400 tracking-wide"></p>
-        </div>
-
-        <!-- Options Container -->
-        <div id="options-container" class="grid grid-cols-1 gap-2.5"></div>
-
-        <!-- Next Button -->
-        <button type="button" onclick="loadRandomChallenge()" id="next-btn" class="hidden w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/25 mt-2 cursor-pointer tracking-wider">
-            Next Ayah Challenge <i class="fa-solid fa-arrow-right ml-1.5"></i>
+    <div class="flex items-center gap-2">
+        <button type="button"
+                onclick="openProModal()"
+                class="bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 border border-amber-500/40 text-xs text-amber-400 px-3 py-2 rounded-xl font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-crown text-[11px]"></i>
+            <span id="pro-btn-text">Go Pro</span>
         </button>
-    </main>
 
-    <!-- Pro Filter Modal -->
-    <div id="filter-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-filter text-amber-400"></i>
-                    <span>Targeted Mode Filters</span>
-                </h3>
-                <button type="button" onclick="closeFilterModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
-            </div>
-            
-            <div class="space-y-3 text-xs text-slate-300">
-                <p class="text-slate-400">Filter quiz questions by specific Juz or bookmark collection:</p>
-                <div class="space-y-2">
-                    <label class="block font-bold text-slate-400">Select Range / Juz</label>
-                    <select id="filter-select" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500">
-                        <option value="all">Entire Quran (All Surahs)</option>
-                        <option value="juz30">Juz 30 (Ammamma)</option>
-                        <option value="mistakes">Drill My Mistakes Only (<span id="mistake-count-badge">0</span>)</option>
-                        <option value="bookmarks">Bookmarked Hard Verses (<span id="bookmark-count-badge">0</span>)</option>
-                        <script>
-                            for(let i=1; i<=29; i++) {
-                                document.write(`<option value="juz${i}">Juz ${i}</option>`);
-                            }
-                        </script>
-                    </select>
-                </div>
-            </div>
+        <button type="button"
+                onclick="openProfileModal()"
+                class="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs text-emerald-400 px-3 py-2 rounded-xl font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-user"></i>
+            <span id="user-display-name">Player</span>
+        </button>
+    </div>
+</header>
 
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="applyFilter()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition cursor-pointer shadow-md">
-                    Apply Filter
-                </button>
+<main class="w-full max-w-xl bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-4 sm:p-6 glow-emerald space-y-4 flex-1">
+
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-1.5 bg-slate-900/60 p-3 rounded-2xl border border-slate-800/60 text-center">
+        <div>
+            <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Streak</p>
+            <p class="text-xs font-extrabold text-amber-400 mt-1">
+                <i class="fa-solid fa-fire"></i>
+                <span id="stat-streak">0</span>
+            </p>
+        </div>
+
+        <div class="border-x border-slate-800/80">
+            <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Answered</p>
+            <p id="stat-total" class="text-xs font-extrabold text-emerald-400 mt-1">0</p>
+        </div>
+
+        <div class="border-r border-slate-800/80">
+            <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Mistakes</p>
+            <p id="stat-mistakes" class="text-xs font-extrabold text-rose-400 mt-1">0</p>
+        </div>
+
+        <div>
+            <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Score</p>
+            <p id="score-val" class="text-xs font-extrabold text-blue-400 mt-1">0</p>
+        </div>
+    </div>
+
+    <!-- Daily Pro Goal -->
+    <div id="daily-goal-card" class="hidden bg-gradient-to-r from-blue-950/60 to-indigo-950/40 border border-blue-500/20 rounded-2xl p-3">
+        <div class="flex justify-between items-center mb-2">
+            <div>
+                <p class="text-[10px] text-blue-300 font-bold uppercase tracking-widest">
+                    Pro Daily Hifz Goal
+                </p>
+                <p class="text-[11px] text-slate-400 mt-0.5">
+                    Keep your daily momentum alive.
+                </p>
+            </div>
+            <span id="daily-goal-text" class="text-xs font-bold text-blue-300">0 / 15</span>
+        </div>
+
+        <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+            <div id="daily-goal-progress"
+                 class="progress-bar h-full bg-gradient-to-r from-blue-500 to-emerald-500"
+                 style="width:0%">
             </div>
         </div>
     </div>
 
-    <!-- Pro Hifz Routine Modal -->
-    <div id="hifz-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-map-location-dot text-blue-400"></i>
-                    <span>Pro Hifz Framework</span>
-                </h3>
-                <button type="button" onclick="closeHifzModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
-            </div>
-            
-            <div class="space-y-3 overflow-y-auto max-h-[60vh] pr-1">
-                <p class="text-xs text-slate-400">Follow this daily 4-step routine to build a rock-solid memory:</p>
-                
-                <div class="space-y-2.5 text-[11px]">
-                    <!-- Step 1 -->
-                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
-                        <h4 class="font-bold text-emerald-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-book-open mr-2"></i>1. Sabaq (New Memorization)</h4>
-                        <p class="text-slate-300 leading-relaxed">Memorize <strong>3 to 5 new ayahs</strong> per day during peak focus hours (e.g., right after Fajr). Use the HQ audio to perfect your pronunciation.</p>
-                    </div>
-                    <!-- Step 2 -->
-                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
-                        <h4 class="font-bold text-amber-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-rotate-left mr-2"></i>2. Sabqi (Recent Revision)</h4>
-                        <p class="text-slate-300 leading-relaxed">Review the last <strong>1-2 Juz</strong> currently being memorized to anchor them securely in your long-term memory.</p>
-                    </div>
-                    <!-- Step 3 -->
-                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
-                        <h4 class="font-bold text-purple-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-layer-group mr-2"></i>3. Manzil (Old Revision)</h4>
-                        <p class="text-slate-300 leading-relaxed">Cycle through your previously memorized Juz. Aim to recite <strong>at least 1 Juz per day</strong> to ensure complete retention.</p>
-                    </div>
-                    <!-- Step 4 -->
-                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 shadow-inner">
-                        <h4 class="font-bold text-rose-400 flex items-center mb-1.5 text-xs"><i class="fa-solid fa-dumbbell mr-2"></i>4. Active Drill Test</h4>
-                        <p class="text-slate-300 leading-relaxed">Run 15–20 questions in the Ayah Quiz app using the <strong>Mistake Drills</strong> and <strong>Juz Filters</strong> to identify and fix your weak spots.</p>
-                    </div>
-                </div>
-            </div>
+    <!-- Search / Modes -->
+    <div class="flex flex-col gap-2.5 bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800/60">
 
-            <div class="pt-2">
-                <button type="button" onclick="closeHifzModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3.5 rounded-xl transition cursor-pointer border border-slate-700 shadow-sm">
-                    Got it! Let's Practice
-                </button>
-            </div>
+        <div class="flex gap-2">
+            <input id="custom-ref-input"
+                   type="text"
+                   inputmode="numeric"
+                   placeholder="Surah:Ayah e.g. 2:255"
+                   class="bg-slate-950 border border-slate-700/80 text-xs text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500 flex-1">
+
+            <button type="button"
+                    onclick="loadCustomAyah()"
+                    class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md">
+                Load
+            </button>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+            <button type="button"
+                    onclick="loadRandomChallenge()"
+                    class="bg-slate-900 hover:bg-slate-800 text-emerald-400 text-[11px] font-bold py-2.5 rounded-xl border border-slate-700/80">
+                <i class="fa-solid fa-shuffle"></i>
+                <span>Quiz</span>
+            </button>
+
+            <button type="button"
+                    onclick="openFilterModal()"
+                    class="bg-slate-900 hover:bg-slate-800 text-amber-400 text-[11px] font-bold py-2.5 rounded-xl border border-amber-500/30">
+                <i class="fa-solid fa-filter"></i>
+                <span>Filters</span>
+            </button>
+
+            <button type="button"
+                    onclick="openHifzModal()"
+                    class="bg-slate-900 hover:bg-slate-800 text-blue-400 text-[11px] font-bold py-2.5 rounded-xl border border-blue-500/30">
+                <i class="fa-solid fa-map"></i>
+                <span>Hifz</span>
+            </button>
+
+            <button type="button"
+                    onclick="openStatsModal()"
+                    class="bg-slate-900 hover:bg-slate-800 text-purple-400 text-[11px] font-bold py-2.5 rounded-xl border border-purple-500/30">
+                <i class="fa-solid fa-chart-simple"></i>
+                <span>Stats</span>
+            </button>
         </div>
     </div>
 
-    <!-- Pro Upgrade Modal -->
-    <div id="pro-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-crown text-amber-400"></i>
-                    <span>Ayah Quiz Pro</span>
-                </h3>
-                <button type="button" onclick="closeProModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
-            </div>
-            
-            <div class="space-y-3 text-xs text-slate-300">
-                <p class="text-slate-400">Upgrade to Pro to accelerate your hifz workflow:</p>
-                <ul class="space-y-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[11px]">
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>HQ Recitation Audio & Speed Control (0.75x / 1x)</strong></span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Targeted Juz (1-30) & Mistake Drills</strong></span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Hard Verse Bookmarking & Profile Review</strong></span></li>
-                    <li class="flex items-center space-x-2.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span><strong>Exclusive Pro Supporter Badge</strong> ⭐</span></li>
-                </ul>
-            </div>
+    <!-- Question Header -->
+    <div class="flex items-center justify-between px-1">
+        <span id="question-badge"
+              class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-500/20">
+            Ayah Challenge
+        </span>
 
-            <!-- Manual Alternative & Direct DM Button -->
-            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2.5 text-[11px]">
-                <p class="font-bold text-amber-400 flex items-center space-x-1.5"><i class="fa-solid fa-wallet"></i><span>Telebirr Option (25 ETB)</span></p>
-                <p class="text-slate-400">Send 25 ETB to: <strong class="text-white">0938054751</strong> (<span class="text-emerald-400">Lakin Awel</span>)</p>
-                <a href="https://t.me/luck_7n" target="_blank" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2 px-3 rounded-xl transition flex items-center justify-center space-x-2 text-xs cursor-pointer shadow-sm">
-                    <i class="fa-brands fa-telegram text-sm"></i>
-                    <span>Send Screenshot to @luck_7n</span>
-                </a>
-            </div>
+        <div class="flex items-center gap-2">
+            <button type="button"
+                    id="translation-toggle"
+                    onclick="toggleTranslation()"
+                    class="hidden bg-slate-900 text-slate-400 text-[10px] px-2 py-1.5 rounded-lg border border-slate-700">
+                Translation
+            </button>
 
-            <div class="space-y-2 pt-1">
-                <button type="button" onclick="openTelegramStarsCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg shadow-blue-600/20">
-                    <i class="fa-solid fa-star text-amber-300 text-sm"></i>
-                    <span>Unlock via Telegram Stars (10 ⭐)</span>
+            <div id="audio-controls-group"
+                 class="hidden flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1">
+                <button type="button"
+                        onclick="playAyahAudio()"
+                        class="text-emerald-400 text-xs px-2 py-1">
+                    <i class="fa-solid fa-volume-high"></i>
                 </button>
-                
-                <!-- Secret Dev Bypass (Visible ONLY for ID 6545688842) -->
-                <button type="button" id="dev-bypass-btn" onclick="devBypassPro()" class="hidden w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-mono text-[10px] py-2 rounded-xl transition border border-slate-700 cursor-pointer">
-                    🛠️ [Dev Test ID: 6545688842] Instant Pro Bypass
+
+                <button type="button"
+                        onclick="toggleAudioSpeed()"
+                        id="speed-badge"
+                        class="text-[9px] font-extrabold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                    1x
                 </button>
             </div>
+
+            <button type="button"
+                    id="bookmark-btn"
+                    onclick="toggleBookmarkCurrent()"
+                    class="hidden bg-slate-900 text-slate-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700">
+                <i class="fa-solid fa-bookmark"></i>
+            </button>
         </div>
     </div>
 
-    <!-- Profile Modal with Bookmarked Verses Section -->
-    <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-user-circle text-emerald-400"></i>
-                    <span>Player Profile & Bookmarks</span>
-                </h3>
-                <button type="button" onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
-            </div>
-            
-            <div class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
-                <div>
-                    <label class="block text-[11px] text-slate-400 font-bold mb-1">Your Name</label>
-                    <input type="text" id="username-input" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl focus:outline-none focus:border-emerald-500" placeholder="Enter your name">
-                </div>
+    <!-- Challenge -->
+    <div class="space-y-3.5 text-center py-2">
 
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5 text-xs">
-                    <div class="flex justify-between text-slate-400">
-                        <span>Account Status:</span>
-                        <span id="modal-pro-status" class="font-bold text-slate-400">Free Tier</span>
-                    </div>
-                    <div class="flex justify-between text-slate-400">
-                        <span>Total Verses Answered:</span>
-                        <span id="modal-total" class="font-bold text-emerald-400">0</span>
-                    </div>
-                    <div class="flex justify-between text-slate-400">
-                        <span>Bookmarked Verses:</span>
-                        <span id="modal-bookmarks" class="font-bold text-amber-400">0</span>
-                    </div>
-                    <div class="flex justify-between text-slate-400">
-                        <span>Mistakes Recorded:</span>
-                        <span id="modal-mistakes" class="font-bold text-rose-400">0</span>
-                    </div>
-                </div>
+        <h2 id="challenge-prompt"
+            class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Identify the correct reference:
+        </h2>
 
-                <!-- Bookmarked Verses Quick-Recall List -->
-                <div class="space-y-2 pt-1">
-                    <h4 class="text-xs font-bold text-amber-400 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-bookmark"></i>
-                        <span>Saved Bookmarks (Recall & Load)</span>
-                    </h4>
-                    <div id="profile-bookmarks-list" class="space-y-1.5 max-h-36 overflow-y-auto bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs text-slate-300">
-                        <p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="saveProfile()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl transition cursor-pointer">
-                    Save Profile
-                </button>
-                <button type="button" onclick="resetStats()" class="bg-rose-950/40 hover:bg-rose-900/50 border border-rose-900/50 text-rose-400 font-bold text-xs px-4 py-3 rounded-xl transition cursor-pointer">
-                    Reset
-                </button>
-            </div>
+        <div id="arabic-verse"
+             class="arabic text-xl sm:text-2xl text-emerald-300 bg-slate-900/50 p-5 sm:p-6 rounded-2xl border border-slate-800/80 leading-loose shadow-inner">
+            Loading...
         </div>
+
+        <p id="verse-translation"
+           class="text-xs text-slate-300 italic px-3 leading-relaxed">
+        </p>
+
+        <p id="verse-reference-tag"
+           class="text-xs font-bold text-emerald-400 tracking-wide">
+        </p>
     </div>
 
-    <!-- Footer -->
-    <footer class="w-full max-w-xl text-center py-2 space-y-1 text-slate-500 text-[11px] shrink-0">
-        <p>Built with 💚 by <span class="text-slate-300 font-semibold">Lakin Awel</span></p>
-    </footer>
+    <!-- Options -->
+    <div id="options-container" class="grid grid-cols-1 gap-2.5"></div>
 
-    <script>
-        let score = 0;
-        let currentAyahData = null;
-        let audioPlayer = null;
-        let currentPlaybackSpeed = 1.0;
+    <!-- Next -->
+    <button type="button"
+            onclick="loadRandomChallenge()"
+            id="next-btn"
+            class="hidden w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3.5 rounded-xl shadow-lg mt-2">
+        Next Ayah
+        <i class="fa-solid fa-arrow-right ml-1.5"></i>
+    </button>
 
-        let surahListCache = [
-            { number: 1, englishName: "Al-Fatihah", numberOfAyahs: 7 },
-            { number: 2, englishName: "Al-Baqarah", numberOfAyahs: 286 },
-            { number: 3, englishName: "Ali 'Imran", numberOfAyahs: 200 },
-            { number: 18, englishName: "Al-Kahf", numberOfAyahs: 110 },
-            { number: 36, englishName: "Ya-Sin", numberOfAyahs: 83 },
-            { number: 55, englishName: "Ar-Rahman", numberOfAyahs: 78 },
-            { number: 67, englishName: "Al-Mulk", numberOfAyahs: 30 },
-            { number: 112, englishName: "Al-Ikhlas", numberOfAyahs: 4 }
-        ];
+    <!-- Session status -->
+    <div id="session-status"
+         class="text-center text-[10px] text-slate-500 min-h-[16px]">
+    </div>
 
-        let appState = {
-            name: "Lakin",
-            streak: 0,
-            lastLoginDate: "",
-            totalAnswered: 0,
-            mistakesList: [],
-            bookmarksList: [],
-            activeFilter: "all",
-            isPro: false
-        };
+</main>
 
-        try {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.expand();
-                if (tg.ready) tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
-                    appState.name = tg.initDataUnsafe.user.first_name;
-                }
-            }
-        } catch (err) {}
+<footer class="w-full max-w-xl text-center py-2 text-slate-500 text-[11px]">
+    Built with 💚 by <span class="text-slate-300 font-semibold">Lakin Awel</span>
+</footer>
 
-        async function syncProStatusFromBackend() {
-            try {
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
-                    const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                    
-                    // Secure Dev ID check (6545688842)
-                    if (Number(userId) === 6545688842) {
-                        appState.isPro = true;
-                        const devBtn = document.getElementById('dev-bypass-btn');
-                        if (devBtn) devBtn.classList.remove('hidden');
-                    } else {
-                        const response = await fetch(`https://ayah-quiz-backend.onrender.com/api/check-pro/${userId}`);
-                        const data = await response.json();
-                        if (data.isPro) appState.isPro = true;
-                    }
-                    saveAppState();
-                    updateBadge();
-                }
-            } catch (e) {
-                console.warn("Backend sync offline, using local state.");
-            }
+
+<!-- ================= FILTER MODAL ================= -->
+
+<div id="filter-modal"
+     class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md shadow-2xl modal-scroll">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-sm text-white">
+                <i class="fa-solid fa-filter text-amber-400 mr-2"></i>
+                Pro Quiz Filters
+            </h3>
+
+            <button type="button" onclick="closeFilterModal()">
+                <i class="fa-solid fa-xmark text-slate-400"></i>
+            </button>
+        </div>
+
+        <p class="text-xs text-slate-400 mb-3">
+            Focus your quiz on exactly what you need to revise.
+        </p>
+
+        <select id="filter-select"
+                class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-3 rounded-xl mb-3">
+            <option value="all">Entire Quran</option>
+            <option value="mistakes">My Mistakes</option>
+            <option value="bookmarks">Bookmarked Verses</option>
+            <option value="juz30">Juz 30 — Amma</option>
+            <option value="juz29">Juz 29 — Tabarak</option>
+            <option value="juz28">Juz 28</option>
+            <option value="juz27">Juz 27</option>
+            <option value="juz26">Juz 26</option>
+            <option value="juz25">Juz 25</option>
+            <option value="juz24">Juz 24</option>
+            <option value="juz23">Juz 23</option>
+            <option value="juz22">Juz 22</option>
+            <option value="juz21">Juz 21</option>
+            <option value="juz20">Juz 20</option>
+            <option value="juz19">Juz 19</option>
+            <option value="juz18">Juz 18</option>
+            <option value="juz17">Juz 17</option>
+            <option value="juz16">Juz 16</option>
+            <option value="juz15">Juz 15</option>
+            <option value="juz14">Juz 14</option>
+            <option value="juz13">Juz 13</option>
+            <option value="juz12">Juz 12</option>
+            <option value="juz11">Juz 11</option>
+            <option value="juz10">Juz 10</option>
+            <option value="juz9">Juz 9</option>
+            <option value="juz8">Juz 8</option>
+            <option value="juz7">Juz 7</option>
+            <option value="juz6">Juz 6</option>
+            <option value="juz5">Juz 5</option>
+            <option value="juz4">Juz 4</option>
+            <option value="juz3">Juz 3</option>
+            <option value="juz2">Juz 2</option>
+            <option value="juz1">Juz 1</option>
+        </select>
+
+        <button type="button"
+                onclick="applyFilter()"
+                class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl">
+            Apply Filter
+        </button>
+    </div>
+</div>
+
+
+<!-- ================= HIFZ MODAL ================= -->
+
+<div id="hifz-modal"
+     class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md shadow-2xl modal-scroll">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-sm text-white">
+                <i class="fa-solid fa-map-location-dot text-blue-400 mr-2"></i>
+                Pro Hifz Framework
+            </h3>
+
+            <button type="button" onclick="closeHifzModal()">
+                <i class="fa-solid fa-xmark text-slate-400"></i>
+            </button>
+        </div>
+
+        <div class="space-y-3">
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-emerald-500/20">
+                <h4 class="font-bold text-emerald-400 text-xs mb-1">
+                    1. Sabaq — New Memorization
+                </h4>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Memorize 3–5 new ayahs during your strongest focus period.
+                    After memorizing, test yourself without looking.
+                </p>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-amber-500/20">
+                <h4 class="font-bold text-amber-400 text-xs mb-1">
+                    2. Sabqi — Recent Revision
+                </h4>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Revise your recent memorization before adding too much new material.
+                </p>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-purple-500/20">
+                <h4 class="font-bold text-purple-400 text-xs mb-1">
+                    3. Manzil — Old Revision
+                </h4>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Regularly cycle through older memorized portions to prevent forgetting.
+                </p>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-rose-500/20">
+                <h4 class="font-bold text-rose-400 text-xs mb-1">
+                    4. Active Recall
+                </h4>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Finish with 15–20 quiz questions, prioritizing your mistakes.
+                </p>
+            </div>
+
+            <div class="bg-blue-950/30 border border-blue-500/20 rounded-2xl p-4">
+                <p class="text-[10px] text-blue-300 font-bold uppercase tracking-widest">
+                    Suggested Daily Session
+                </p>
+
+                <div class="grid grid-cols-4 gap-2 mt-3 text-center">
+                    <div>
+                        <p class="text-lg font-bold text-emerald-400">5</p>
+                        <p class="text-[9px] text-slate-400">New</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-bold text-amber-400">10</p>
+                        <p class="text-[9px] text-slate-400">Recent</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-bold text-purple-400">10</p>
+                        <p class="text-[9px] text-slate-400">Old</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-bold text-blue-400">15</p>
+                        <p class="text-[9px] text-slate-400">Quiz</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button"
+                    onclick="closeHifzModal()"
+                    class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3.5 rounded-xl border border-slate-700">
+                Start Practicing
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ================= PRO MODAL ================= -->
+
+<div id="pro-modal"
+     class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+
+    <div class="bg-slate-900 border border-amber-500/20 rounded-3xl p-5 w-full max-w-md shadow-2xl modal-scroll">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-sm text-white">
+                <i class="fa-solid fa-crown text-amber-400 mr-2"></i>
+                Ayah Quiz Pro
+            </h3>
+
+            <button type="button" onclick="closeProModal()">
+                <i class="fa-solid fa-xmark text-slate-400"></i>
+            </button>
+        </div>
+
+        <div class="bg-gradient-to-br from-amber-500/10 to-emerald-500/10 border border-amber-500/20 rounded-2xl p-4 mb-4">
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Turn Ayah Quiz into your personal Hifz training companion.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-[11px] mb-4">
+
+            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                <i class="fa-solid fa-headphones text-emerald-400 mb-2"></i>
+                <p class="font-bold text-white">Recitation</p>
+                <p class="text-slate-500 mt-1">Audio + speed control</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                <i class="fa-solid fa-filter text-amber-400 mb-2"></i>
+                <p class="font-bold text-white">Juz Training</p>
+                <p class="text-slate-500 mt-1">Juz 1–30 drills</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                <i class="fa-solid fa-bookmark text-blue-400 mb-2"></i>
+                <p class="font-bold text-white">Bookmarks</p>
+                <p class="text-slate-500 mt-1">Save difficult ayahs</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                <i class="fa-solid fa-chart-line text-purple-400 mb-2"></i>
+                <p class="font-bold text-white">Hifz Stats</p>
+                <p class="text-slate-500 mt-1">Track weaknesses</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                <i class="fa-solid fa-bullseye text-rose-400 mb-2"></i>
+                <p class="font-bold text-white">Daily Goal</p>
+                <p class="text-slate-500 mt-1">Build consistency</p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                <i class="fa-solid fa-trophy text-yellow-400 mb-2"></i>
+                <p class="font-bold text-white">Achievements</p>
+                <p class="text-slate-500 mt-1">Earn milestones</p>
+            </div>
+        </div>
+
+        <!-- Telebirr -->
+        <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2.5 mb-3">
+            <p class="font-bold text-amber-400 text-[11px]">
+                <i class="fa-solid fa-wallet mr-1"></i>
+                Telebirr — 25 ETB
+            </p>
+
+            <p class="text-[11px] text-slate-400">
+                Send 25 ETB to
+                <strong class="text-white">0938054751</strong>
+                (<span class="text-emerald-400">Lakin Awel</span>).
+            </p>
+
+            <a href="https://t.me/luck_7n"
+               target="_blank"
+               class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs">
+                <i class="fa-brands fa-telegram"></i>
+                Send Receipt to @luck_7n
+            </a>
+        </div>
+
+        <button type="button"
+                onclick="buyWithStars()"
+                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg mb-2">
+            <i class="fa-solid fa-star text-amber-300"></i>
+            Unlock with Telegram Stars — 10 ⭐
+        </button>
+
+        <button id="dev-bypass-btn"
+                type="button"
+                onclick="devBypassPro()"
+                class="hidden w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-mono text-[10px] py-2 rounded-xl border border-slate-700">
+            Developer Test: Unlock Pro
+        </button>
+    </div>
+</div>
+
+
+<!-- ================= PROFILE MODAL ================= -->
+
+<div id="profile-modal"
+     class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md shadow-2xl modal-scroll">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-sm text-white">
+                <i class="fa-solid fa-user-circle text-emerald-400 mr-2"></i>
+                Profile
+            </h3>
+
+            <button type="button" onclick="closeProfileModal()">
+                <i class="fa-solid fa-xmark text-slate-400"></i>
+            </button>
+        </div>
+
+        <label class="block text-[11px] text-slate-400 font-bold mb-1">
+            Display Name
+        </label>
+
+        <input id="username-input"
+               type="text"
+               class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2.5 rounded-xl mb-4">
+
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5 text-xs mb-4">
+            <div class="flex justify-between">
+                <span class="text-slate-400">Status</span>
+                <span id="modal-pro-status" class="font-bold text-emerald-400">Free</span>
+            </div>
+
+            <div class="flex justify-between">
+                <span class="text-slate-400">Answered</span>
+                <span id="modal-total" class="font-bold text-emerald-400">0</span>
+            </div>
+
+            <div class="flex justify-between">
+                <span class="text-slate-400">Mistakes</span>
+                <span id="modal-mistakes" class="font-bold text-rose-400">0</span>
+            </div>
+
+            <div class="flex justify-between">
+                <span class="text-slate-400">Bookmarks</span>
+                <span id="modal-bookmarks" class="font-bold text-amber-400">0</span>
+            </div>
+        </div>
+
+        <h4 class="text-xs font-bold text-amber-400 mb-2">
+            <i class="fa-solid fa-bookmark mr-1"></i>
+            Saved Verses
+        </h4>
+
+        <div id="profile-bookmarks-list"
+             class="space-y-1.5 max-h-44 overflow-y-auto bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs mb-4">
+        </div>
+
+        <div class="flex gap-2">
+            <button type="button"
+                    onclick="saveProfile()"
+                    class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl">
+                Save
+            </button>
+
+            <button type="button"
+                    onclick="resetStats()"
+                    class="bg-rose-950/40 hover:bg-rose-900/50 border border-rose-900/50 text-rose-400 font-bold text-xs px-4 py-3 rounded-xl">
+                Reset
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ================= STATS MODAL ================= -->
+
+<div id="stats-modal"
+     class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md shadow-2xl modal-scroll">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-sm text-white">
+                <i class="fa-solid fa-chart-simple text-purple-400 mr-2"></i>
+                Hifz Statistics
+            </h3>
+
+            <button type="button" onclick="closeStatsModal()">
+                <i class="fa-solid fa-xmark text-slate-400"></i>
+            </button>
+        </div>
+
+        <div id="stats-content"></div>
+
+        <button type="button"
+                onclick="closeStatsModal()"
+                class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 rounded-xl mt-4">
+            Close
+        </button>
+    </div>
+</div>
+
+
+<script>
+/* =========================================================
+   AYAH QUIZ — FRONTEND
+   ========================================================= */
+
+const API_BASE = "https://ayah-quiz-backend.onrender.com";
+
+const tg = window.Telegram?.WebApp || null;
+
+let score = 0;
+let currentAyahData = null;
+let audioPlayer = null;
+let currentPlaybackSpeed = 1;
+let questionLocked = false;
+let translationVisible = true;
+
+let surahListCache = [];
+let juzCache = {};
+
+const STORAGE_KEY = "ayahquiz_profile_v20";
+
+let appState = {
+    name: "Player",
+    streak: 0,
+    lastLoginDate: "",
+    totalAnswered: 0,
+    totalCorrect: 0,
+    totalWrong: 0,
+    score: 0,
+    mistakesList: [],
+    bookmarksList: [],
+    activeFilter: "all",
+    isPro: false,
+    dailyAnswered: 0,
+    dailyDate: "",
+    answerHistory: []
+};
+
+
+/* ================= TELEGRAM ================= */
+
+function initTelegram() {
+    try {
+        if (!tg) return;
+
+        tg.ready();
+
+        if (tg.expand) {
+            tg.expand();
         }
 
-        function loadAppState() {
-            try {
-                const saved = localStorage.getItem('ayahquiz_profile_v12');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    appState = { ...appState, ...parsed };
-                }
-            } catch(e) {}
-            
-            syncProStatusFromBackend();
+        const user = tg.initDataUnsafe?.user;
 
-            const today = new Date().toDateString();
-            if (appState.lastLoginDate !== today) {
-                const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toDateString();
-                if (appState.lastLoginDate === yesterday) {
-                    appState.streak++;
-                } else if (!appState.lastLoginDate) {
-                    appState.streak = 1;
-                }
-                appState.lastLoginDate = today;
-                saveAppState();
-            }
-
-            document.getElementById('user-display-name').textContent = appState.name;
-            document.getElementById('stat-streak').textContent = appState.streak;
-            document.getElementById('stat-total').textContent = appState.totalAnswered;
-            document.getElementById('stat-mistakes').textContent = (appState.mistakesList || []).length;
-            document.getElementById('mistake-count-badge').textContent = (appState.mistakesList || []).length;
-            document.getElementById('bookmark-count-badge').textContent = (appState.bookmarksList || []).length;
-            
-            if (appState.isPro) {
-                document.getElementById('pro-btn-text').textContent = "PRO Active";
-            }
-            updateBadge();
+        if (user?.first_name) {
+            appState.name = user.first_name;
         }
 
-        function saveAppState() {
-            try {
-                localStorage.setItem('ayahquiz_profile_v12', JSON.stringify(appState));
-            } catch(e) {}
+        if (tg.BackButton) {
+            tg.BackButton.hide();
+        }
+    } catch (e) {
+        console.warn("Telegram initialization failed", e);
+    }
+}
+
+
+/* ================= STORAGE ================= */
+
+function saveAppState() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    } catch (e) {
+        console.warn("Local storage unavailable");
+    }
+}
+
+function loadAppState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            appState = {
+                ...appState,
+                ...parsed
+            };
+        }
+    } catch (e) {
+        console.warn("Could not load saved state");
+    }
+
+    updateDailyState();
+    updateUI();
+}
+
+function updateDailyState() {
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (appState.dailyDate !== today) {
+        appState.dailyDate = today;
+        appState.dailyAnswered = 0;
+    }
+
+    const todayDate = new Date();
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(todayDate.getDate() - 1);
+
+    const todayString = todayDate.toDateString();
+    const yesterdayString = yesterdayDate.toDateString();
+
+    if (!appState.lastLoginDate) {
+        appState.streak = 1;
+        appState.lastLoginDate = todayString;
+    } else if (appState.lastLoginDate !== todayString) {
+        if (appState.lastLoginDate === yesterdayString) {
+            appState.streak++;
+        } else {
+            appState.streak = 1;
         }
 
-        async function fetchSurahs() {
-            try {
-                const res = await fetch('https://api.alquran.cloud/v1/surah');
-                const data = await res.json();
-                if (data && data.data && data.data.length > 0) {
-                    surahListCache = data.data;
-                }
-            } catch(e) {}
-            return surahListCache;
+        appState.lastLoginDate = todayString;
+    }
+
+    saveAppState();
+}
+
+
+/* ================= API AUTH ================= */
+
+function getInitData() {
+    return tg?.initData || "";
+}
+
+async function apiPost(path, body = {}) {
+    const response = await fetch(`${API_BASE}${path}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            ...body,
+            initData: getInitData()
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Request failed");
+    }
+
+    return data;
+}
+
+
+/* ================= PRO STATUS ================= */
+
+async function syncProStatus() {
+    try {
+        const data = await apiPost("/api/check-pro");
+
+        if (data.isPro) {
+            appState.isPro = true;
+            saveAppState();
         }
 
-        async function fetchAyahFromAPI(surahNum, ayahNum) {
-            try {
-                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/editions/quran-uthmani,en.sahih,ar.alafasy`);
-                const data = await res.json();
-                if(data && data.data && data.data.length >= 2) {
-                    return {
-                        surahNum: Number(surahNum),
-                        ayahNum: Number(ayahNum),
-                        arabic: data.data[0].text,
-                        translation: data.data[1].text,
-                        audio: data.data[2] ? data.data[2].audio : null,
-                        reference: `${data.data[0].surah.englishName} (${surahNum}:${ayahNum})`
-                    };
-                }
-            } catch(e) {}
+        if (data.isAdmin) {
+            const btn = document.getElementById("dev-bypass-btn");
+            if (btn) btn.classList.remove("hidden");
+        }
+
+        updateUI();
+    } catch (error) {
+        console.warn("Pro sync unavailable:", error.message);
+    }
+}
+
+
+/* ================= UI ================= */
+
+function updateUI() {
+    document.getElementById("user-display-name").textContent =
+        appState.name || "Player";
+
+    document.getElementById("stat-streak").textContent =
+        appState.streak || 0;
+
+    document.getElementById("stat-total").textContent =
+        appState.totalAnswered || 0;
+
+    document.getElementById("stat-mistakes").textContent =
+        (appState.mistakesList || []).length;
+
+    document.getElementById("score-val").textContent =
+        appState.score || score || 0;
+
+    document.getElementById("pro-btn-text").textContent =
+        appState.isPro ? "PRO Active" : "Go Pro";
+
+    document.getElementById("daily-goal-card").classList.toggle(
+        "hidden",
+        !appState.isPro
+    );
+
+    updateDailyGoal();
+    updateBadge();
+}
+
+function updateBadge() {
+    let badge = "Novice Memorizer";
+
+    if (appState.isPro) {
+        badge = "Pro Supporter ⭐";
+    } else if (appState.totalCorrect >= 100) {
+        badge = "Hifz Master 🌟";
+    } else if (appState.totalCorrect >= 50) {
+        badge = "Quran Scholar 📖";
+    } else if (appState.totalCorrect >= 25) {
+        badge = "Advanced Explorer ⚡";
+    } else if (appState.totalCorrect >= 10) {
+        badge = "Dedicated Explorer 🌱";
+    }
+
+    document.getElementById("user-badge-text").textContent = badge;
+}
+
+function updateDailyGoal() {
+    if (!appState.isPro) return;
+
+    const goal = 15;
+    const current = Math.min(appState.dailyAnswered || 0, goal);
+    const percentage = (current / goal) * 100;
+
+    document.getElementById("daily-goal-text").textContent =
+        `${current} / ${goal}`;
+
+    document.getElementById("daily-goal-progress").style.width =
+        `${percentage}%`;
+}
+
+
+/* ================= SURAH DATA ================= */
+
+async function fetchSurahs() {
+    if (surahListCache.length) {
+        return surahListCache;
+    }
+
+    try {
+        const response = await fetch(
+            "https://api.alquran.cloud/v1/surah"
+        );
+
+        const data = await response.json();
+
+        if (data?.data?.length) {
+            surahListCache = data.data;
+        }
+    } catch (e) {
+        console.warn("Could not fetch Surah list");
+    }
+
+    return surahListCache;
+}
+
+
+/* ================= AYAH API ================= */
+
+async function fetchAyahFromAPI(surahNum, ayahNum) {
+    try {
+        const response = await fetch(
+            `https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/editions/quran-uthmani,en.sahih,ar.alafasy`
+        );
+
+        const data = await response.json();
+
+        if (!data?.data || data.data.length < 2) {
             return null;
         }
 
-        async function loadRandomChallenge() {
-            document.getElementById('next-btn').classList.add('hidden');
-            document.getElementById('audio-controls-group').classList.add('hidden');
-            document.getElementById('bookmark-btn').classList.add('hidden');
-            document.getElementById('arabic-verse').textContent = "Loading Ayah...";
-            document.getElementById('verse-translation').textContent = "";
-            document.getElementById('verse-reference-tag').textContent = "";
-            document.getElementById('options-container').innerHTML = "";
+        return {
+            surahNum: Number(surahNum),
+            ayahNum: Number(ayahNum),
+            arabic: data.data[0].text,
+            translation: data.data[1].text,
+            audio: data.data[2]?.audio || null,
+            reference:
+                `${data.data[0].surah.englishName} (${surahNum}:${ayahNum})`
+        };
 
-            const surahs = await fetchSurahs();
-            let sNum, aNum;
-
-            if (appState.activeFilter === "mistakes" && appState.mistakesList && appState.mistakesList.length > 0) {
-                const randomMistake = appState.mistakesList[Math.floor(Math.random() * appState.mistakesList.length)];
-                sNum = randomMistake.surahNum;
-                aNum = randomMistake.ayahNum;
-            } else if (appState.activeFilter === "bookmarks" && appState.bookmarksList && appState.bookmarksList.length > 0) {
-                const randomBookmark = appState.bookmarksList[Math.floor(Math.random() * appState.bookmarksList.length)];
-                sNum = randomBookmark.surahNum;
-                aNum = randomBookmark.ayahNum;
-            } else if (appState.activeFilter.startsWith("juz")) {
-                sNum = surahs[Math.floor(Math.random() * surahs.length)].number;
-                aNum = Math.floor(Math.random() * 20) + 1;
-            } else {
-                const randomSurahObj = surahs[Math.floor(Math.random() * surahs.length)];
-                sNum = randomSurahObj.number;
-                aNum = Math.floor(Math.random() * randomSurahObj.numberOfAyahs) + 1;
-            }
-
-            currentAyahData = await fetchAyahFromAPI(sNum, aNum);
-            if (!currentAyahData) {
-                currentAyahData = {
-                    surahNum: 2,
-                    ayahNum: 255,
-                    arabic: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ",
-                    translation: "Allah - there is no deity except Him, the Ever-Living, the Sustainer of all existence.",
-                    audio: "https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3",
-                    reference: "Al-Baqarah (2:255)"
-                };
-            }
-
-            document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
-            document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
-            
-            if (appState.isPro) {
-                if (currentAyahData.audio) {
-                    document.getElementById('audio-controls-group').classList.remove('hidden');
-                }
-                document.getElementById('bookmark-btn').classList.remove('hidden');
-                updateBookmarkButtonVisual();
-            }
-
-            let options = [currentAyahData.reference];
-            while(options.length < 4) {
-                const dummySurah = surahs[Math.floor(Math.random() * surahs.length)];
-                const dummyAyahNum = Math.floor(Math.random() * dummySurah.numberOfAyahs) + 1;
-                const dummyRefStr = `${dummySurah.englishName} (${dummySurah.number}:${dummyAyahNum})`;
-                if(!options.includes(dummyRefStr)) options.push(dummyRefStr);
-            }
-            options.sort(() => Math.random() - 0.5);
-
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = options.map(opt => `
-                <button type="button" onclick="checkAnswer('${opt.replace(/'/g, "\\'")}', '${currentAyahData.reference.replace(/'/g, "\\'")}')" class="w-full text-left bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl transition font-medium flex items-center justify-between cursor-pointer shadow-sm">
-                    <span>${opt}</span>
-                    <i class="fa-regular fa-circle text-slate-600"></i>
-                </button>
-            `).join('');
-        }
-
-        async function loadCustomAyah() {
-            const val = document.getElementById('custom-ref-input').value.trim();
-            if(!val.includes(':')) {
-                alert("Format: Surah:Ayah (e.g. 2:255)");
-                return;
-            }
-            const [s, a] = val.split(':');
-            currentAyahData = await fetchAyahFromAPI(s, a);
-            if (!currentAyahData) {
-                alert("Verse could not be loaded.");
-                return;
-            }
-            document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
-            document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
-            document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
-            
-            if(appState.isPro) {
-                if(currentAyahData.audio) document.getElementById('audio-controls-group').classList.remove('hidden');
-                document.getElementById('bookmark-btn').classList.remove('hidden');
-                updateBookmarkButtonVisual();
-            }
-            
-            document.getElementById('options-container').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Custom Ayah Loaded Successfully!</p>`;
-            
-            const nextBtn = document.getElementById('next-btn');
-            nextBtn.classList.remove('hidden');
-            nextBtn.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        async function loadSpecificAyah(surahNum, ayahNum) {
-            closeProfileModal();
-            currentAyahData = await fetchAyahFromAPI(surahNum, ayahNum);
-            if (!currentAyahData) {
-                alert("Could not load bookmarked ayah.");
-                return;
-            }
-            document.getElementById('arabic-verse').textContent = currentAyahData.arabic;
-            document.getElementById('verse-translation').textContent = `"${currentAyahData.translation}"`;
-            document.getElementById('verse-reference-tag').textContent = currentAyahData.reference;
-            
-            if(appState.isPro) {
-                if(currentAyahData.audio) document.getElementById('audio-controls-group').classList.remove('hidden');
-                document.getElementById('bookmark-btn').classList.remove('hidden');
-                updateBookmarkButtonVisual();
-            }
-            
-            document.getElementById('options-container').innerHTML = `<p class="text-xs text-emerald-400 text-center py-2 font-bold">Loaded Bookmark: ${currentAyahData.reference}</p>`;
-            const nextBtn = document.getElementById('next-btn');
-            nextBtn.classList.remove('hidden');
-            nextBtn.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function playAyahAudio() {
-            if (!appState.isPro) {
-                alert("Audio recitation playback is a Pro feature. Upgrade to Pro to unlock!");
-                openProModal();
-                return;
-            }
-            if (!currentAyahData || !currentAyahData.audio) return;
-            if (audioPlayer) audioPlayer.pause();
-            audioPlayer = new Audio(currentAyahData.audio);
-            audioPlayer.playbackRate = currentPlaybackSpeed;
-            audioPlayer.play().catch(e => alert("Audio playback restricted on browser container."));
-        }
-
-        function toggleAudioSpeed() {
-            if (currentPlaybackSpeed === 1.0) {
-                currentPlaybackSpeed = 0.75;
-                document.getElementById('speed-badge').textContent = "0.75x";
-            } else {
-                currentPlaybackSpeed = 1.0;
-                document.getElementById('speed-badge').textContent = "1x";
-            }
-            if (audioPlayer) audioPlayer.playbackRate = currentPlaybackSpeed;
-        }
-
-        function toggleBookmarkCurrent() {
-            if (!appState.isPro) {
-                alert("Bookmarking verses is a Pro feature.");
-                openProModal();
-                return;
-            }
-            if (!currentAyahData) return;
-            if (!appState.bookmarksList) appState.bookmarksList = [];
-            
-            const idx = appState.bookmarksList.findIndex(b => b.surahNum === currentAyahData.surahNum && b.ayahNum === currentAyahData.ayahNum);
-            if (idx >= 0) {
-                appState.bookmarksList.splice(idx, 1);
-                alert("Ayah removed from bookmarks.");
-            } else {
-                appState.bookmarksList.push({ surahNum: currentAyahData.surahNum, ayahNum: currentAyahData.ayahNum, reference: currentAyahData.reference });
-                alert("Ayah successfully bookmarked!");
-            }
-            saveAppState();
-            updateBookmarkButtonVisual();
-            document.getElementById('bookmark-count-badge').textContent = appState.bookmarksList.length;
-            document.getElementById('modal-bookmarks').textContent = appState.bookmarksList.length;
-        }
-
-        function updateBookmarkButtonVisual() {
-            if (!currentAyahData) return;
-            const isBookmarked = (appState.bookmarksList || []).some(b => b.surahNum === currentAyahData.surahNum && b.ayahNum === currentAyahData.ayahNum);
-            const btn = document.getElementById('bookmark-btn');
-            if (isBookmarked) {
-                btn.className = "bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-amber-500/40 transition cursor-pointer shadow-sm";
-            } else {
-                btn.className = "bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer shadow-sm";
-            }
-        }
-
-        async function checkAnswer(selected, correct) {
-            const buttons = document.getElementById('options-container').getElementsByTagName('button');
-            for (let btn of buttons) {
-                btn.disabled = true;
-                if (btn.textContent.trim() === correct) {
-                    btn.className = "w-full text-left bg-emerald-950/60 border border-emerald-500 text-xs text-emerald-300 p-3.5 rounded-xl font-bold flex items-center justify-between shadow-sm";
-                } else if (btn.textContent.trim() === selected && selected !== correct) {
-                    btn.className = "w-full text-left bg-rose-950/60 border border-rose-500 text-xs text-rose-300 p-3.5 rounded-xl font-bold flex items-center justify-between shadow-sm";
-                }
-            }
-
-            document.getElementById('verse-reference-tag').textContent = `Reference: ${correct}`;
-
-            if (selected === correct) {
-                score += 10;
-                document.getElementById('score-val').textContent = score;
-                appState.totalAnswered++;
-                if (appState.activeFilter === "mistakes" && currentAyahData) {
-                    appState.mistakesList = appState.mistakesList.filter(m => !(m.surahNum === currentAyahData.surahNum && m.ayahNum === currentAyahData.ayahNum));
-                }
-            } else {
-                if (currentAyahData) {
-                    if (!appState.mistakesList) appState.mistakesList = [];
-                    const exists = appState.mistakesList.some(m => m.surahNum === currentAyahData.surahNum && m.ayahNum === currentAyahData.ayahNum);
-                    if (!exists) {
-                        appState.mistakesList.push({ surahNum: currentAyahData.surahNum, ayahNum: currentAyahData.ayahNum });
-                    }
-                }
-            }
-
-            saveAppState();
-            document.getElementById('stat-total').textContent = appState.totalAnswered;
-            document.getElementById('stat-mistakes').textContent = (appState.mistakesList || []).length;
-            document.getElementById('mistake-count-badge').textContent = (appState.mistakesList || []).length;
-            updateBadge();
-
-            const nextBtn = document.getElementById('next-btn');
-            nextBtn.classList.remove('hidden');
-            nextBtn.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function updateBadge() {
-            let badgeTitle = "Novice Memorizer";
-            let total = appState.totalAnswered;
-            if (appState.isPro) badgeTitle = "Pro Supporter ⭐";
-            else if (total >= 50) badgeTitle = "Quran Scholar 🌟";
-            else if (total >= 25) badgeTitle = "Advanced Hafiz 📖";
-            else if (total >= 10) badgeTitle = "Dedicated Explorer ⚡";
-            document.getElementById('user-badge-text').textContent = badgeTitle;
-        }
-
-        function openProModal() { document.getElementById('pro-modal').classList.remove('hidden'); }
-        function closeProModal() { document.getElementById('pro-modal').classList.add('hidden'); }
-
-        function openHifzModal() {
-            if (!appState.isPro) {
-                alert("The Hifz Framework and Schedules are exclusive Pro features. Upgrade to unlock!");
-                openProModal();
-                return;
-            }
-            document.getElementById('hifz-modal').classList.remove('hidden');
-        }
-        function closeHifzModal() { document.getElementById('hifz-modal').classList.add('hidden'); }
-
-        function openFilterModal() {
-            if (!appState.isPro) {
-                alert("Targeted filters require Pro Access. Upgrade to unlock!");
-                openProModal();
-                return;
-            }
-            document.getElementById('filter-select').value = appState.activeFilter;
-            document.getElementById('filter-modal').classList.remove('hidden');
-        }
-        function closeFilterModal() { document.getElementById('filter-modal').classList.add('hidden'); }
-
-        function applyFilter() {
-            appState.activeFilter = document.getElementById('filter-select').value;
-            saveAppState();
-            let labelTag = "All";
-            if(appState.activeFilter === "juz30") labelTag = "Juz 30";
-            else if(appState.activeFilter === "mistakes") labelTag = "Mistakes";
-            else if(appState.activeFilter === "bookmarks") labelTag = "Bookmarks";
-            else if(appState.activeFilter.startsWith("juz")) labelTag = appState.activeFilter.toUpperCase();
-            
-            document.getElementById('filter-tag').textContent = labelTag;
-            closeFilterModal();
-            loadRandomChallenge();
-        }
-
-        async function openTelegramStarsCheckout() {
-            try {
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
-                    const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                    const res = await fetch(`https://ayah-quiz-backend.onrender.com/api/create-invoice/${userId}`);
-                    const data = await res.json();
-                    
-                    if (data && data.invoiceLink) {
-                        window.Telegram.WebApp.openInvoice(data.invoiceLink, (status) => {
-                            if (status === 'paid') {
-                                appState.isPro = true;
-                                saveAppState();
-                                updateBadge();
-                                closeProModal();
-                                alert("Payment successful! Pro features unlocked.");
-                            }
-                        });
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.warn("Could not fetch invoice link from backend:", e);
-            }
-            alert("To pay with Stars, ensure your bot backend is active at https://ayah-quiz-backend.onrender.com/api/create-invoice");
-        }
-
-        function devBypassPro() {
-            appState.isPro = true;
-            saveAppState();
-            updateBadge();
-            closeProModal();
-            alert("Developer Pro Bypass Active for ID 6545688842!");
-            loadRandomChallenge();
-        }
-
-        function openProfileModal() {
-            document.getElementById('username-input').value = appState.name;
-            document.getElementById('modal-total').textContent = appState.totalAnswered;
-            document.getElementById('modal-mistakes').textContent = (appState.mistakesList || []).length;
-            document.getElementById('modal-bookmarks').textContent = (appState.bookmarksList || []).length;
-            document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
-            
-            // Render bookmarks with individual delete triggers
-            const container = document.getElementById('profile-bookmarks-list');
-            if (!appState.bookmarksList || appState.bookmarksList.length === 0) {
-                container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>`;
-            } else {
-                container.innerHTML = appState.bookmarksList.map((b, index) => `
-                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
-                        <span class="font-medium text-amber-300 truncate max-w-[160px]">${b.reference || `Surah ${b.surahNum}:${b.ayahNum}`}</span>
-                        <div class="flex items-center space-x-1.5">
-                            <button type="button" onclick="loadSpecificAyah(${b.surahNum}, ${b.ayahNum})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-md transition font-bold cursor-pointer" title="Load Ayah">
-                                Load
-                            </button>
-                            <button type="button" onclick="removeBookmarkByIndex(${index})" class="bg-rose-950/60 hover:bg-rose-900 text-rose-400 text-[10px] px-2 py-1 rounded-md transition border border-rose-900/50 cursor-pointer" title="Delete Bookmark">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('').concat(`
-                    <button type="button" onclick="clearAllBookmarks()" class="w-full mt-2 bg-rose-950/30 hover:bg-rose-900/40 text-rose-400 border border-rose-900/40 text-[11px] font-bold py-2 rounded-xl transition cursor-pointer">
-                        Clear All Bookmarks
-                    </button>
-                `);
-            }
-
-            document.getElementById('profile-modal').classList.remove('hidden');
-        }
-        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
-
-        function saveProfile() {
-            const val = document.getElementById('username-input').value.trim();
-            if (val) appState.name = val;
-            saveAppState();
-            document.getElementById('user-display-name').textContent = appState.name;
-            closeProfileModal();
-        }
-
-        function resetStats() {
-            if(confirm("Reset all statistics?")) {
-                appState.totalAnswered = 0;
-                appState.mistakesList = [];
-                appState.bookmarksList = [];
-                saveAppState();
-                loadAppState();
-                closeProfileModal();
-                loadRandomChallenge();
-            }
-        }
-
-        loadAppState();
-        loadRandomChallenge();
-        function removeBookmarkByIndex(index) {
-            if (!appState.bookmarksList) return;
-            appState.bookmarksList.splice(index, 1);
-            saveAppState();
-            
-            // Refresh counts and UI inside the modal
-            document.getElementById('modal-bookmarks').textContent = appState.bookmarksList.length;
-            document.getElementById('bookmark-count-badge').textContent = appState.bookmarksList.length;
-            updateBookmarkButtonVisual();
-            
-            // Re-render the profile bookmarks view
-            openProfileModal();
-        }
-
-        function clearAllBookmarks() {
-            if (confirm("Are you sure you want to delete all bookmarked verses?")) {
-                appState.bookmarksList = [];
-                saveAppState();
-                
-                document.getElementById('modal-bookmarks').textContent = 0;
-                document.getElementById('bookmark-count-badge').textContent = 0;
-                updateBookmarkButtonVisual();
-                
-                openProfileModal();
-            }
-        }function openProfileModal() {
-    document.getElementById('username-input').value = appState.name;
-    document.getElementById('modal-total').textContent = appState.totalAnswered;
-    document.getElementById('modal-mistakes').textContent = (appState.mistakesList || []).length;
-    document.getElementById('modal-bookmarks').textContent = (appState.bookmarksList || []).length;
-    document.getElementById('modal-pro-status').textContent = appState.isPro ? "PRO Active ⭐" : "Free Tier";
-    
-    // Render bookmarks with individual delete triggers
-    const container = document.getElementById('profile-bookmarks-list');
-    if (!appState.bookmarksList || appState.bookmarksList.length === 0) {
-        container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No bookmarked verses yet.</p>`;
-    } else {
-        container.innerHTML = appState.bookmarksList.map((b, index) => `
-                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
-                        <span class="font-medium text-amber-300 truncate max-w-[160px]">${b.reference || `Surah ${b.surahNum}:${b.ayahNum}`}</span>
-                        <div class="flex items-center space-x-1.5">
-                            <button type="button" onclick="loadSpecificAyah(${b.surahNum}, ${b.ayahNum})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-md transition font-bold cursor-pointer" title="Load Ayah">
-                                Load
-                            </button>
-                            <button type="button" onclick="removeBookmarkByIndex(${index})" class="bg-rose-950/60 hover:bg-rose-900 text-rose-400 text-[10px] px-2 py-1 rounded-md transition border border-rose-900/50 cursor-pointer" title="Delete Bookmark">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('').concat(`
-                    <button type="button" onclick="clearAllBookmarks()" class="w-full mt-2 bg-rose-950/30 hover:bg-rose-900/40 text-rose-400 border border-rose-900/40 text-[11px] font-bold py-2 rounded-xl transition cursor-pointer">
-                        Clear All Bookmarks
-                    </button>
-                `);
+    } catch (e) {
+        console.warn("Ayah API error", e);
+        return null;
     }
-    
-    document.getElementById('profile-modal').classList.remove('hidden');
 }
-    </script>
+
+
+/* ================= REAL JUZ DATA ================= */
+
+async function fetchJuz(juzNumber) {
+    if (juzCache[juzNumber]) {
+        return juzCache[juzNumber];
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.alquran.cloud/v1/juz/${juzNumber}/quran-uthmani`
+        );
+
+        const data = await response.json();
+
+        if (data?.data?.ayahs?.length) {
+            juzCache[juzNumber] = data.data.ayahs;
+            return juzCache[juzNumber];
+        }
+    } catch (e) {
+        console.warn("Juz fetch failed");
+    }
+
+    return [];
+}
+
+
+/* ================= RANDOM QUIZ ================= */
+
+async function loadRandomChallenge() {
+
+    questionLocked = false;
+
+    document.getElementById("next-btn").classList.add("hidden");
+
+    document.getElementById("options-container").innerHTML =
+        `<div class="text-center text-xs text-slate-500 py-4">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i>
+            Loading challenge...
+        </div>`;
+
+    document.getElementById("arabic-verse").textContent = "Loading Ayah...";
+    document.getElementById("verse-translation").textContent = "";
+    document.getElementById("verse-reference-tag").textContent = "";
+
+    hidePremiumControls();
+
+    const surahs = await fetchSurahs();
+
+    if (!surahs.length) {
+        showError("Could not load Quran data. Check your connection.");
+        return;
+    }
+
+    let sNum;
+    let aNum;
+
+    /* Mistakes */
+    if (
+        appState.activeFilter === "mistakes" &&
+        appState.mistakesList.length
+    ) {
+        const item =
+            appState.mistakesList[
+                Math.floor(Math.random() * appState.mistakesList.length)
+            ];
+
+        sNum = item.surahNum;
+        aNum = item.ayahNum;
+    }
+
+    /* Bookmarks */
+    else if (
+        appState.activeFilter === "bookmarks" &&
+        appState.bookmarksList.length
+    ) {
+        const item =
+            appState.bookmarksList[
+                Math.floor(Math.random() * appState.bookmarksList.length)
+            ];
+
+        sNum = item.surahNum;
+        aNum = item.ayahNum;
+    }
+
+    /* Real Juz */
+    else if (appState.activeFilter.startsWith("juz")) {
+
+        const juzNumber =
+            Number(appState.activeFilter.replace("juz", ""));
+
+        const ayahs = await fetchJuz(juzNumber);
+
+        if (!ayahs.length) {
+            showError("Could not load this Juz.");
+            return;
+        }
+
+        const randomAyah =
+            ayahs[Math.floor(Math.random() * ayahs.length)];
+
+        sNum = randomAyah.surah.number;
+        aNum = randomAyah.numberInSurah;
+    }
+
+    /* Entire Quran */
+    else {
+
+        const surah =
+            surahs[Math.floor(Math.random() * surahs.length)];
+
+        sNum = surah.number;
+
+        aNum =
+            Math.floor(Math.random() * surah.numberOfAyahs) + 1;
+    }
+
+    currentAyahData =
+        await fetchAyahFromAPI(sNum, aNum);
+
+    if (!currentAyahData) {
+        showError("Unable to load the Ayah.");
+        return;
+    }
+
+    renderQuestion();
+}
+
+
+/* ================= RENDER QUESTION ================= */
+
+function renderQuestion() {
+
+    document.getElementById("arabic-verse").textContent =
+        currentAyahData.arabic;
+
+    document.getElementById("verse-translation").textContent =
+        `"${currentAyahData.translation}"`;
+
+    document.getElementById("verse-reference-tag").textContent = "";
+
+    document.getElementById("challenge-prompt").textContent =
+        "Identify the correct reference:";
+
+    const options = [currentAyahData.reference];
+
+    const used = new Set(options);
+
+    while (options.length < 4) {
+
+        const surahs = surahListCache;
+
+        const surah =
+            surahs[Math.floor(Math.random() * surahs.length)];
+
+        const ayah =
+            Math.floor(Math.random() * surah.numberOfAyahs) + 1;
+
+        const ref =
+            `${surah.englishName} (${surah.number}:${ayah})`;
+
+        if (!used.has(ref)) {
+            used.add(ref);
+            options.push(ref);
+        }
+    }
+
+    options.sort(() => Math.random() - 0.5);
+
+    document.getElementById("options-container").innerHTML =
+        options.map((option, index) => `
+            <button
+                type="button"
+                data-option="${escapeHtml(option)}"
+                onclick="checkAnswer(${index})"
+                class="answer-option w-full text-left bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl transition font-medium flex items-center justify-between shadow-sm">
+
+                <span>${escapeHtml(option)}</span>
+
+                <i class="fa-regular fa-circle text-slate-600"></i>
+            </button>
+        `).join("");
+
+    if (appState.isPro) {
+        showPremiumControls();
+    }
+
+    const filterLabel =
+        appState.activeFilter === "all"
+            ? "Entire Quran"
+            : appState.activeFilter
+                .replace("juz", "Juz ")
+                .replace("mistakes", "Mistake Drill")
+                .replace("bookmarks", "Bookmark Drill");
+
+    document.getElementById("question-badge").textContent =
+        filterLabel;
+
+    document.getElementById("session-status").textContent =
+        appState.isPro
+            ? `Daily progress: ${appState.dailyAnswered}/15`
+            : "Keep practicing — every mistake becomes a revision target.";
+}
+
+
+/* ================= ANSWER ================= */
+
+async function checkAnswer(index) {
+
+    if (questionLocked || !currentAyahData) {
+        return;
+    }
+
+    questionLocked = true;
+
+    const buttons =
+        [...document.querySelectorAll(".answer-option")];
+
+    const selected =
+        buttons[index].dataset.option;
+
+    const correct =
+        currentAyahData.reference;
+
+    buttons.forEach(btn => {
+        btn.disabled = true;
+    });
+
+    let isCorrect = selected === correct;
+
+    buttons.forEach(btn => {
+
+        const value = btn.dataset.option;
+
+        if (value === correct) {
+            btn.className =
+                "answer-option w-full text-left bg-emerald-950/60 border border-emerald-500 text-xs text-emerald-300 p-3.5 rounded-xl font-bold flex items-center justify-between shadow-sm answer-correct";
+        }
+
+        if (value === selected && !isCorrect) {
+            btn.className =
+                "answer-option w-full text-left bg-rose-950/60 border border-rose-500 text-xs text-rose-300 p-3.5 rounded-xl font-bold flex items-center justify-between shadow-sm answer-wrong";
+        }
+    });
+
+    document.getElementById("verse-reference-tag").textContent =
+        `Reference: ${correct}`;
+
+    appState.totalAnswered++;
+    appState.dailyAnswered++;
+
+    if (isCorrect) {
+
+        score += 10;
+        appState.score += 10;
+        appState.totalCorrect++;
+
+        if (
+            appState.activeFilter === "mistakes" &&
+            currentAyahData
+        ) {
+            appState.mistakesList =
+                appState.mistakesList.filter(
+                    item =>
+                        !(
+                            item.surahNum === currentAyahData.surahNum &&
+                            item.ayahNum === currentAyahData.ayahNum
+                        )
+                );
+        }
+
+    } else {
+
+        appState.totalWrong++;
+
+        const exists =
+            appState.mistakesList.some(
+                item =>
+                    item.surahNum === currentAyahData.surahNum &&
+                    item.ayahNum === currentAyahData.ayahNum
+            );
+
+        if (!exists) {
+            appState.mistakesList.push({
+                surahNum: currentAyahData.surahNum,
+                ayahNum: currentAyahData.ayahNum,
+                reference: currentAyahData.reference
+            });
+        }
+    }
+
+    appState.answerHistory.unshift({
+        surahNum: currentAyahData.surahNum,
+        ayahNum: currentAyahData.ayahNum,
+        correct: isCorrect,
+        date: new Date().toISOString()
+    });
+
+    appState.answerHistory =
+        appState.answerHistory.slice(0, 100);
+
+    saveAppState();
+    updateUI();
+
+    document.getElementById("next-btn").classList.remove("hidden");
+
+    if (isCorrect && appState.isPro && appState.dailyAnswered === 15) {
+        setTimeout(() => {
+            alert("🎉 Daily Hifz goal completed! Excellent consistency.");
+        }, 350);
+    }
+}
+
+
+/* ================= CUSTOM AYAH ================= */
+
+async function loadCustomAyah() {
+
+    const value =
+        document.getElementById("custom-ref-input").value.trim();
+
+    const match =
+        value.match(/^(\d{1,3})\s*:\s*(\d{1,3})$/);
+
+    if (!match) {
+        alert("Use this format: Surah:Ayah\nExample: 2:255");
+        return;
+    }
+
+    const surah = Number(match[1]);
+    const ayah = Number(match[2]);
+
+    if (surah < 1 || surah > 114) {
+        alert("Surah must be between 1 and 114.");
+        return;
+    }
+
+    currentAyahData =
+        await fetchAyahFromAPI(surah, ayah);
+
+    if (!currentAyahData) {
+        alert("That Ayah could not be loaded.");
+        return;
+    }
+
+    questionLocked = true;
+
+    document.getElementById("arabic-verse").textContent =
+        currentAyahData.arabic;
+
+    document.getElementById("verse-translation").textContent =
+        `"${currentAyahData.translation}"`;
+
+    document.getElementById("verse-reference-tag").textContent =
+        currentAyahData.reference;
+
+    document.getElementById("challenge-prompt").textContent =
+        "Custom Ayah";
+
+    document.getElementById("options-container").innerHTML = `
+        <div class="bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-3 text-center text-xs text-emerald-300">
+            Custom Ayah loaded successfully.
+        </div>
+    `;
+
+    document.getElementById("next-btn").classList.remove("hidden");
+
+    if (appState.isPro) {
+        showPremiumControls();
+    }
+}
+
+
+/* ================= PREMIUM CONTROLS ================= */
+
+function showPremiumControls() {
+
+    document
+        .getElementById("translation-toggle")
+        .classList.remove("hidden");
+
+    if (currentAyahData?.audio) {
+        document
+            .getElementById("audio-controls-group")
+            .classList.remove("hidden");
+    }
+
+    document
+        .getElementById("bookmark-btn")
+        .classList.remove("hidden");
+
+    updateBookmarkButtonVisual();
+}
+
+function hidePremiumControls() {
+
+    document
+        .getElementById("translation-toggle")
+        .classList.add("hidden");
+
+    document
+        .getElementById("audio-controls-group")
+        .classList.add("hidden");
+
+    document
+        .getElementById("bookmark-btn")
+        .classList.add("hidden");
+}
+
+function toggleTranslation() {
+
+    if (!appState.isPro) {
+        openProModal();
+        return;
+    }
+
+    translationVisible = !translationVisible;
+
+    document.getElementById("verse-translation").style.display =
+        translationVisible ? "" : "none";
+
+    document.getElementById("translation-toggle").textContent =
+        translationVisible
+            ? "Hide Translation"
+            : "Show Translation";
+}
+
+
+/* ================= AUDIO ================= */
+
+function playAyahAudio() {
+
+    if (!appState.isPro) {
+        openProModal();
+        return;
+    }
+
+    if (!currentAyahData?.audio) {
+        alert("Audio isn't available for this Ayah.");
+        return;
+    }
+
+    try {
+
+        if (audioPlayer) {
+            audioPlayer.pause();
+        }
+
+        audioPlayer =
+            new Audio(currentAyahData.audio);
+
+        audioPlayer.playbackRate =
+            currentPlaybackSpeed;
+
+        audioPlayer.play().catch(() => {
+            alert("Telegram/browser blocked audio playback. Tap the audio button again.");
+        });
+
+    } catch (e) {
+        console.warn(e);
+    }
+}
+
+function toggleAudioSpeed() {
+
+    if (!appState.isPro) {
+        openProModal();
+        return;
+    }
+
+    if (currentPlaybackSpeed === 1) {
+        currentPlaybackSpeed = 0.75;
+    } else if (currentPlaybackSpeed === 0.75) {
+        currentPlaybackSpeed = 1.25;
+    } else {
+        currentPlaybackSpeed = 1;
+    }
+
+    document.getElementById("speed-badge").textContent =
+        `${currentPlaybackSpeed}x`;
+
+    if (audioPlayer) {
+        audioPlayer.playbackRate =
+            currentPlaybackSpeed;
+    }
+}
+
+
+/* ================= BOOKMARKS ================= */
+
+function toggleBookmarkCurrent() {
+
+    if (!appState.isPro) {
+        openProModal();
+        return;
+    }
+
+    if (!currentAyahData) return;
+
+    const index =
+        appState.bookmarksList.findIndex(
+            item =>
+                item.surahNum === currentAyahData.surahNum &&
+                item.ayahNum === currentAyahData.ayahNum
+        );
+
+    if (index >= 0) {
+
+        appState.bookmarksList.splice(index, 1);
+
+    } else {
+
+        appState.bookmarksList.push({
+            surahNum: currentAyahData.surahNum,
+            ayahNum: currentAyahData.ayahNum,
+            reference: currentAyahData.reference
+        });
+    }
+
+    saveAppState();
+    updateBookmarkButtonVisual();
+}
+
+function updateBookmarkButtonVisual() {
+
+    const button =
+        document.getElementById("bookmark-btn");
+
+    if (!currentAyahData) return;
+
+    const bookmarked =
+        appState.bookmarksList.some(
+            item =>
+                item.surahNum === currentAyahData.surahNum &&
+                item.ayahNum === currentAyahData.ayahNum
+        );
+
+    if (bookmarked) {
+        button.className =
+            "bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-amber-500/40";
+    } else {
+        button.className =
+            "bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700";
+    }
+}
+
+
+/* ================= PROFILE ================= */
+
+function openProfileModal() {
+
+    document.getElementById("username-input").value =
+        appState.name;
+
+    document.getElementById("modal-total").textContent =
+        appState.totalAnswered;
+
+    document.getElementById("modal-mistakes").textContent =
+        appState.mistakesList.length;
+
+    document.getElementById("modal-bookmarks").textContent =
+        appState.bookmarksList.length;
+
+    document.getElementById("modal-pro-status").textContent =
+        appState.isPro
+            ? "PRO Active ⭐"
+            : "Free Tier";
+
+    renderBookmarks();
+
+    document
+        .getElementById("profile-modal")
+        .classList.remove("hidden");
+}
+
+function closeProfileModal() {
+    document
+        .getElementById("profile-modal")
+        .classList.add("hidden");
+}
+
+function renderBookmarks() {
+
+    const container =
+        document.getElementById("profile-bookmarks-list");
+
+    if (!appState.bookmarksList.length) {
+
+        container.innerHTML =
+            `<p class="text-[11px] text-slate-500 text-center py-3">
+                No bookmarked verses yet.
+            </p>`;
+
+        return;
+    }
+
+    container.innerHTML =
+        appState.bookmarksList.map((bookmark, index) => `
+            <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800 gap-2">
+
+                <span class="font-medium text-amber-300 truncate flex-1">
+                    ${escapeHtml(bookmark.reference)}
+                </span>
+
+                <button
+                    type="button"
+                    onclick="loadSpecificAyah(${bookmark.surahNum}, ${bookmark.ayahNum})"
+                    class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-md">
+                    Load
+                </button>
+
+                <button
+                    type="button"
+                    onclick="removeBookmark(${index})"
+                    class="bg-rose-950/60 text-rose-400 text-[10px] px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `).join("");
+}
+
+function loadSpecificAyah(surah, ayah) {
+
+    closeProfileModal();
+
+    document.getElementById("custom-ref-input").value =
+        `${surah}:${ayah}`;
+
+    loadCustomAyah();
+}
+
+function removeBookmark(index) {
+
+    appState.bookmarksList.splice(index, 1);
+
+    saveAppState();
+
+    renderBookmarks();
+}
+
+function saveProfile() {
+
+    const name =
+        document.getElementById("username-input").value.trim();
+
+    if (name) {
+        appState.name = name;
+    }
+
+    saveAppState();
+    updateUI();
+    closeProfileModal();
+}
+
+
+/* ================= STATS ================= */
+
+function openStatsModal() {
+
+    const answered = appState.totalAnswered || 0;
+    const correct = appState.totalCorrect || 0;
+    const wrong = appState.totalWrong || 0;
+
+    const accuracy =
+        answered
+            ? Math.round((correct / answered) * 100)
+            : 0;
+
+    const weakest =
+        appState.mistakesList.length;
+
+    document.getElementById("stats-content").innerHTML = `
+
+        <div class="grid grid-cols-2 gap-2">
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                <p class="text-[10px] text-slate-500 uppercase">Accuracy</p>
+                <p class="text-2xl font-bold text-emerald-400 mt-1">
+                    ${accuracy}%
+                </p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                <p class="text-[10px] text-slate-500 uppercase">Score</p>
+                <p class="text-2xl font-bold text-blue-400 mt-1">
+                    ${appState.score}
+                </p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                <p class="text-[10px] text-slate-500 uppercase">Correct</p>
+                <p class="text-2xl font-bold text-emerald-400 mt-1">
+                    ${correct}
+                </p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                <p class="text-[10px] text-slate-500 uppercase">Weak Verses</p>
+                <p class="text-2xl font-bold text-rose-400 mt-1">
+                    ${weakest}
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-3 bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <p class="text-xs font-bold text-white mb-2">
+                Your Hifz Journey
+            </p>
+
+            <div class="space-y-2 text-[11px]">
+
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Current streak</span>
+                    <span class="text-amber-400 font-bold">
+                        ${appState.streak} days 🔥
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Bookmarks</span>
+                    <span class="text-amber-400 font-bold">
+                        ${appState.bookmarksList.length}
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Mistake drills</span>
+                    <span class="text-rose-400 font-bold">
+                        ${wrong}
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    document
+        .getElementById("stats-modal")
+        .classList.remove("hidden");
+}
+
+function closeStatsModal() {
+    document
+        .getElementById("stats-modal")
+        .classList.add("hidden");
+}
+
+
+/* ================= FILTER ================= */
+
+function openFilterModal() {
+
+    if (!appState.isPro) {
+        openProModal();
+        return;
+    }
+
+    document.getElementById("filter-select").value =
+        appState.activeFilter;
+
+    document
+        .getElementById("filter-modal")
+        .classList.remove("hidden");
+}
+
+function closeFilterModal() {
+    document
+        .getElementById("filter-modal")
+        .classList.add("hidden");
+}
+
+function applyFilter() {
+
+    const filter =
+        document.getElementById("filter-select").value;
+
+    if (
+        filter === "mistakes" &&
+        !appState.mistakesList.length
+    ) {
+        alert("You don't have any recorded mistakes yet.");
+        return;
+    }
+
+    if (
+        filter === "bookmarks" &&
+        !appState.bookmarksList.length
+    ) {
+        alert("You don't have any bookmarks yet.");
+        return;
+    }
+
+    appState.activeFilter = filter;
+
+    saveAppState();
+
+    closeFilterModal();
+
+    loadRandomChallenge();
+}
+
+
+/* ================= PRO ================= */
+
+function openProModal() {
+    document
+        .getElementById("pro-modal")
+        .classList.remove("hidden");
+}
+
+function closeProModal() {
+    document
+        .getElementById("pro-modal")
+        .classList.add("hidden");
+}
+
+async function buyWithStars() {
+
+    if (!tg) {
+        alert("Telegram Mini App payment is only available inside Telegram.");
+        return;
+    }
+
+    try {
+
+        const data =
+            await apiPost("/api/create-invoice");
+
+        if (!data.invoiceLink) {
+            throw new Error("Invoice was not created.");
+        }
+
+        tg.openInvoice(
+            data.invoiceLink,
+            async status => {
+
+                /*
+                 * The backend remains the source of truth.
+                 * Telegram's successful payment callback means
+                 * the invoice UI completed, but the bot also
+                 * receives successful_payment.
+                 */
+
+                if (status === "paid") {
+
+                    await new Promise(resolve =>
+                        setTimeout(resolve, 1200)
+                    );
+
+                    await syncProStatus();
+
+                    if (appState.isPro) {
+                        closeProModal();
+
+                        alert(
+                            "🎉 Payment confirmed! Ayah Quiz Pro is now active."
+                        );
+
+                        loadRandomChallenge();
+                    } else {
+                        alert(
+                            "Payment completed. Your Pro access is being confirmed. Please reopen the app in a moment."
+                        );
+                    }
+
+                } else if (status === "cancelled") {
+                    console.log("Payment cancelled");
+
+                } else if (status === "failed") {
+                    alert("Payment failed. Please try again.");
+
+                } else if (status === "pending") {
+                    alert(
+                        "Payment is still processing. Your Pro access will activate after Telegram confirms it."
+                    );
+                }
+            }
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Could not open the Telegram Stars checkout. Please try again."
+        );
+    }
+}
+
+
+/* ================= DEV ================= */
+
+function devBypassPro() {
+
+    if (!tg?.initDataUnsafe?.user?.id) {
+        return;
+    }
+
+    appState.isPro = true;
+
+    saveAppState();
+    updateUI();
+
+    closeProModal();
+
+    loadRandomChallenge();
+}
+
+
+/* ================= HIFZ ================= */
+
+function openHifzModal() {
+
+    if (!appState.isPro) {
+        openProModal();
+        return;
+    }
+
+    document
+        .getElementById("hifz-modal")
+        .classList.remove("hidden");
+}
+
+function closeHifzModal() {
+    document
+        .getElementById("hifz-modal")
+        .classList.add("hidden");
+}
+
+
+/* ================= RESET ================= */
+
+function resetStats() {
+
+    if (!confirm(
+        "Reset your quiz statistics, mistakes and bookmarks?"
+    )) {
+        return;
+    }
+
+    appState.totalAnswered = 0;
+    appState.totalCorrect = 0;
+    appState.totalWrong = 0;
+    appState.score = 0;
+    appState.mistakesList = [];
+    appState.bookmarksList = [];
+    appState.answerHistory = [];
+
+    score = 0;
+
+    saveAppState();
+    updateUI();
+
+    closeProfileModal();
+
+    loadRandomChallenge();
+}
+
+
+/* ================= UTILITIES ================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function showError(message) {
+
+    document.getElementById("arabic-verse").textContent =
+        "Unable to load";
+
+    document.getElementById("options-container").innerHTML =
+        `<div class="bg-rose-950/30 border border-rose-500/20 rounded-xl p-3 text-center text-xs text-rose-300">
+            ${escapeHtml(message)}
+        </div>`;
+}
+
+
+/* ================= START ================= */
+
+async function initializeApp() {
+
+    initTelegram();
+
+    loadAppState();
+
+    await fetchSurahs();
+
+    await syncProStatus();
+
+    loadRandomChallenge();
+}
+
+initializeApp();
+
+</script>
+
 </body>
 </html>

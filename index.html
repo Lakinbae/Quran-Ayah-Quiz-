@@ -14,50 +14,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --bg:#071c16;--panel:#0b261e;--panel2:#103128;--line:#1c493b;
-      --text:#edf8f2;--muted:#91b4a7;--gold:#e8c66a;--green:#32c98b;
-      --danger:#ef6d76;--shadow:0 18px 50px rgba(0,0,0,.25)
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
-    body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
-    button,input,select{font:inherit}
-    button{cursor:pointer}
-    .arabic{font-family:Amiri,serif;direction:rtl}
-    .glass{background:rgba(11,38,30,.92);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:20px}
-    .gold{color:var(--gold)}
-    .muted{color:var(--muted)}
-    .btn{border:1px solid var(--line);border-radius:14px;padding:11px 14px;transition:.18s}
-    .btn:active{transform:scale(.97)}
-    .btn-primary{background:linear-gradient(135deg,#179567,#0c7250);border-color:#31b982}
-    .btn-gold{background:linear-gradient(135deg,#e8c66a,#bd9841);color:#162116;border-color:#f2d785;font-weight:800}
-    .btn-ghost{background:#0d2b22}
-    .btn-danger{background:#3a1c22;border-color:#63313b}
-    .hidden{display:none!important}
-    .page{max-width:760px;margin:0 auto;padding:14px 14px 100px}
-    .topbar{position:sticky;top:0;z-index:30;margin:-14px -14px 16px;padding:12px 14px;background:rgba(7,28,22,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(28,73,59,.65)}
-    .progress{height:7px;background:#16372d;border-radius:99px;overflow:hidden}
-    .progress>i{display:block;height:100%;background:linear-gradient(90deg,#27b97e,#e8c66a);border-radius:99px;transition:width .3s}
-    .option{width:100%;text-align:left;background:#0c2b22;border:1px solid #205143;border-radius:15px;padding:14px;margin-top:9px;transition:.18s}
-    .option:hover{border-color:#39bd8a}
-    .option.correct{background:#103f2e;border-color:#38c88f}
-    .option.wrong{background:#452029;border-color:#d65e70}
-    .modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;padding:12px}
-    .modal-box{width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:24px;background:#0a241c;border:1px solid var(--line);padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
-    .nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(7,28,22,.95);border-top:1px solid var(--line);padding:8px max(10px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-bottom))}
-    .nav-inner{max-width:760px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-    .nav button{border:0;background:transparent;color:#739a8b;padding:8px 4px;border-radius:12px;font-size:11px}
-    .nav button.active{color:var(--gold);background:#0e2b22}
-    .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:200;background:#122f26;border:1px solid #326453;padding:11px 15px;border-radius:13px;max-width:90%;box-shadow:var(--shadow)}
-    .spinner{width:25px;height:25px;border:3px solid #285347;border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:auto}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .stat{padding:14px;border-radius:16px;background:#0d2a21;border:1px solid #1b493b}
-    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#0d2a21;border-radius:99px;padding:6px 10px;font-size:12px}
-    .filter-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .filter-grid button{text-align:left}
-    @media(min-width:600px){.modal{align-items:center}.filter-grid{grid-template-columns:repeat(3,1fr)}}
+    :root{--bg:#f7faf8;--panel:#ffffff;--panel2:#f0f7f3;--line:#dbe9e2;--text:#17352b;--muted:#6f857c;--green:#087f5b;--green2:#10a878;--gold:#d59b24;--danger:#d94f63;--shadow:0 12px 35px rgba(25,70,54,.10)}
+    *{box-sizing:border-box} html,body{margin:0;background:linear-gradient(180deg,#f7faf8 0%,#eef7f2 100%);color:var(--text);font-family:Inter,system-ui,sans-serif} body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)} button,input,select{font:inherit} button{cursor:pointer;-webkit-tap-highlight-color:transparent}.arabic{font-family:"Noto Naskh Arabic","Amiri",serif;direction:rtl;unicode-bidi:plaintext;font-feature-settings:"liga" 1,"calt" 1}.glass{background:rgba(255,255,255,.92);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(16px)}.card{background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}.gold{color:var(--gold)}.muted{color:var(--muted)}.btn{border:1px solid var(--line);border-radius:16px;padding:11px 14px;transition:transform .15s,box-shadow .15s,background .15s}.btn:active{transform:scale(.98)}.btn-primary{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;border-color:transparent;box-shadow:0 8px 20px rgba(8,127,91,.18)}.btn-gold{background:linear-gradient(135deg,#f3c95b,#d59b24);color:#26301d;border-color:transparent;font-weight:800}.btn-ghost{background:#f3f8f5;color:var(--text)}.btn-danger{background:#fff0f2;border-color:#ffd4da;color:#a92f43}.hidden{display:none!important}.page{max-width:760px;margin:0 auto;padding:12px 14px 105px}.topbar{position:sticky;top:0;z-index:30;margin:-12px -14px 16px;padding:12px 14px;background:rgba(247,250,248,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.progress{height:7px;background:#e4eee9;border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--green2),#e5b43d);border-radius:99px;transition:width .3s}.option{width:100%;text-align:left;background:#f8fbfa;border:1px solid #dce9e3;border-radius:18px;padding:15px;margin-top:9px;transition:.15s}.option:hover{border-color:#8bcdb8;background:#f1faf6}.option.correct{background:#eaf9f2;border-color:#5bc49c;color:#086b4c}.option.wrong{background:#fff0f2;border-color:#ed8795;color:#a92f43}.modal{position:fixed;inset:0;z-index:100;background:rgba(23,53,43,.28);display:flex;align-items:flex-end;justify-content:center;padding:12px;backdrop-filter:blur(5px)}.modal-box{width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:28px;background:#fff;border:1px solid var(--line);padding:18px;box-shadow:0 30px 90px rgba(25,70,54,.22)}.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:8px max(10px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-bottom));backdrop-filter:blur(16px)}.nav-inner{max-width:760px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.nav button{border:0;background:transparent;color:#8a9c95;padding:8px 4px;border-radius:14px;font-size:11px}.nav button.active{color:var(--green);background:#edf8f3}.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:200;background:#17352b;color:#fff;border:1px solid #2f5c4d;padding:11px 15px;border-radius:14px;max-width:90%;box-shadow:var(--shadow)}.spinner{width:25px;height:25px;border:3px solid #dcebe4;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:auto}@keyframes spin{to{transform:rotate(360deg)}}.stat{padding:14px;border-radius:18px;background:#f4f9f6;border:1px solid var(--line)}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#f3f8f5;border-radius:99px;padding:6px 10px;font-size:12px}.filter-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.filter-grid button{text-align:left}.verse-box{background:linear-gradient(145deg,#f5fbf8,#fff);border:1px solid #dcebe4;border-radius:24px;padding:20px}.translation{font-size:14px;line-height:1.7;color:#536a61;margin-top:14px;padding-top:14px;border-top:1px solid #e5eee9}.pro-lock{position:relative}.pro-lock:after{content:"PRO ✦";font-size:10px;font-weight:800;color:#9a6b10;background:#fff7dd;border:1px solid #f1d98e;border-radius:99px;padding:4px 7px;float:right}@media(min-width:600px){.modal{align-items:center}.filter-grid{grid-template-columns:repeat(3,1fr)}}
   </style>
 </head>
 
@@ -117,7 +75,7 @@
         </button>
         <button id="proHomeBtn" class="btn btn-gold text-left p-4" data-action="pro">
           <div class="font-extrabold">✦ Unlock Pro</div>
-          <div class="text-sm opacity-80">Unlimited practice + advanced revision</div>
+          <div class="text-sm opacity-80">Recitation · bookmarks · badges · map</div>
         </button>
       </div>
     </section>
@@ -136,25 +94,25 @@
 
       <div id="quizCard" class="card p-5 hidden">
         <div class="flex justify-between items-center mb-4">
-          <span class="pill" id="ayahMeta">Surah</span>
-          <button id="bookmarkBtn" class="btn btn-ghost" type="button" title="Bookmark">☆</button>
+          <span class="pill">📖 Quran Memory</span>
+          <button id="bookmarkBtn" class="btn btn-ghost pro-lock hidden" type="button" title="Pro bookmark">☆</button>
         </div>
-
-        <div class="arabic text-3xl leading-[2.15] text-right mb-4" id="ayahArabic"></div>
-        <div class="border-t border-[#1c493b] pt-4">
-          <div class="muted text-xs mb-2">What surah is this ayah from?</div>
+        <div class="verse-box">
+          <div class="arabic text-3xl leading-[2.25] text-right" id="ayahArabic" lang="ar"></div>
+          <div id="translationBox" class="translation hidden"></div>
+        </div>
+        <div class="pt-4">
+          <div class="muted text-xs mb-2">Which Surah is this ayah from?</div>
           <div id="options"></div>
         </div>
-
-        <div id="answerFeedback" class="hidden mt-4 rounded-2xl p-4 bg-[#0d2b22] border border-[#285347]"></div>
-
-        <div class="flex gap-2 mt-4">
-          <button id="audioBtn" class="btn btn-ghost flex-1" type="button">🔊 Listen</button>
-          <select id="speedSelect" class="btn btn-ghost" aria-label="Audio speed">
-            <option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option>
-          </select>
-          <button id="nextBtn" class="btn btn-primary flex-1 hidden" type="button">Next →</button>
+        <div id="answerFeedback" class="hidden mt-4 rounded-2xl p-4"></div>
+        <div id="recitationControls" class="hidden mt-4">
+          <div class="flex gap-2">
+            <button id="audioBtn" class="btn btn-ghost flex-1" type="button">▶︎ Recitation</button>
+            <select id="speedSelect" class="btn btn-ghost" aria-label="Recitation speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option></select>
+          </div>
         </div>
+        <button id="nextBtn" class="btn btn-primary w-full mt-4 hidden" type="button">Next question →</button>
       </div>
     </section>
 
@@ -197,6 +155,10 @@
         <div class="stat"><div class="text-2xl font-extrabold" id="statsCorrect">0</div><div class="muted text-xs">Correct</div></div>
         <div class="stat"><div class="text-2xl font-extrabold" id="statsMistakes">0</div><div class="muted text-xs">Mistakes</div></div>
       </div>
+      <div class="card p-5 mb-4">
+        <div class="flex items-center justify-between"><div><div class="font-bold">Memorization map</div><div class="muted text-xs">Your Pro visual journey through the Quran.</div></div><span class="pill">PRO ✦</span></div>
+        <div id="memoryMap" class="grid grid-cols-6 gap-2 mt-4"></div>
+      </div>
       <div class="card p-5">
         <div class="font-bold mb-3">Achievements</div>
         <div id="achievements" class="grid gap-2"></div>
@@ -226,6 +188,8 @@
         <div><div id="profileFullName" class="font-extrabold text-lg">Guest</div><div id="profileUsername" class="muted text-sm"></div></div>
       </div>
       <div class="mt-4 pill" id="profileTier">FREE</div>
+      <div class="mt-4 flex gap-2"><input id="displayNameInput" class="btn btn-ghost flex-1" maxlength="30" placeholder="Your display name"><button id="saveNameBtn" class="btn btn-primary">Save</button></div>
+      <div class="muted text-xs mt-2">This is your Ayah Quiz name. Your Telegram @username stays separate.</div>
     </div>
     <div class="grid grid-cols-3 gap-2 mb-3">
       <div class="stat"><div id="pStreak" class="font-extrabold">0</div><div class="muted text-xs">Streak</div></div>
@@ -239,32 +203,20 @@
 
 <div id="proModal" class="modal hidden">
   <div class="modal-box">
-    <div class="flex items-center justify-between mb-4">
-      <div><div class="text-xl font-extrabold gold">Ayah Quiz Pro ✦</div><div class="muted text-sm">Serious Hifz practice tools</div></div>
-      <button class="btn btn-ghost" data-close="proModal">✕</button>
-    </div>
+    <div class="flex items-center justify-between mb-4"><div><div class="text-xl font-extrabold gold">Ayah Quiz Pro ✦</div><div class="muted text-sm">Keep the core quiz free. Pro adds beautiful revision tools.</div></div><button class="btn btn-ghost" data-close="proModal">✕</button></div>
     <div class="grid gap-2 mb-4">
-      <div class="card p-3">♾️ <b>Unlimited quizzes</b><div class="muted text-xs">No daily question cap.</div></div>
-      <div class="card p-3">🧭 <b>All 30 Juz + 114 Surahs</b><div class="muted text-xs">Target your exact memorization area.</div></div>
-      <div class="card p-3">🧠 <b>Mistake & bookmark drills</b><div class="muted text-xs">Turn weak ayahs into focused revision.</div></div>
-      <div class="card p-3">📊 <b>Advanced progress</b><div class="muted text-xs">XP, accuracy, streaks and achievements.</div></div>
-      <div class="card p-3">🔊 <b>Recitation controls</b><div class="muted text-xs">Alafasy audio with speed control.</div></div>
+      <div class="card p-3">🔊 <b>Recitation</b><div class="muted text-xs">Listen to Alafasy while revising.</div></div>
+      <div class="card p-3">🔖 <b>Bookmarks</b><div class="muted text-xs">Save ayahs and build a personal revision list.</div></div>
+      <div class="card p-3">🧠 <b>Mistake drills</b><div class="muted text-xs">Practice the ayahs you missed.</div></div>
+      <div class="card p-3">🏅 <b>Badges & achievements</b><div class="muted text-xs">Unlock collectible Hifz milestones.</div></div>
+      <div class="card p-3">🗺️ <b>Memorization map</b><div class="muted text-xs">Visualize your Quran journey.</div></div>
+      <div class="card p-3">📚 <b>Extended history & insights</b><div class="muted text-xs">Deeper revision statistics.</div></div>
     </div>
-    <div class="card p-4 mb-3">
-      <div class="font-bold mb-2">Telegram Stars</div>
-      <div class="text-2xl font-extrabold">10 ⭐</div>
-      <div class="muted text-xs mb-3">One-time Pro activation.</div>
-      <button id="starsBtn" class="btn btn-gold w-full">Pay with Telegram Stars</button>
-    </div>
-    <div class="card p-4">
-      <div class="font-bold mb-2">Telebirr</div>
-      <div class="muted text-sm">Send <b>25 ETB</b> to <b>0938054751</b> — Lakin Awel.</div>
-      <input id="telebirrRef" class="w-full btn btn-ghost mt-3" placeholder="Telebirr transaction/reference ID">
-      <button id="telebirrBtn" class="btn btn-primary w-full mt-2">Submit payment request</button>
-      <div class="muted text-xs mt-2">Keep your receipt. Support: @luck_7n</div>
-    </div>
+    <div class="card p-4 mb-3"><div class="font-bold mb-1">Telegram Stars</div><div class="text-2xl font-extrabold">10 ⭐</div><div class="muted text-xs mb-3">One-time Pro activation.</div><button id="starsBtn" class="btn btn-gold w-full">Pay with Telegram Stars</button></div>
+    <div class="card p-4"><div class="font-bold mb-2">Telebirr</div><div class="muted text-sm">Send <b>25 ETB</b> to <b>0938054751</b> — Lakin Awel.</div><input id="telebirrRef" class="w-full btn btn-ghost mt-3" placeholder="Telebirr transaction/reference ID"><button id="telebirrBtn" class="btn btn-primary w-full mt-2">Submit payment request</button><div class="muted text-xs mt-2">Keep your receipt. Support: @luck_7n</div></div>
   </div>
 </div>
+
 
 <div id="resultModal" class="modal hidden">
   <div class="modal-box text-center">
@@ -312,7 +264,8 @@
     xp: 0, answered: 0, correct: 0, streak: 0, lastActive: '',
     dailyDone: 0, dailyDate: '',
     mistakes: [], bookmarks: [], history: [],
-    isPro: false
+    isPro: false,
+    customName: ''
   };
 
   let state = loadState();
@@ -357,7 +310,7 @@
     }
   }
 
-  function dailyGoal() { return state.isPro ? 10 : 5; }
+  function dailyGoal() { return 10; }
   function level() { return Math.max(1, Math.floor(state.xp / 100) + 1); }
   function accuracy() { return state.answered ? Math.round(state.correct / state.answered * 100) : 0; }
 
@@ -385,7 +338,7 @@
   function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
   function renderHeader() {
-    const name = state.name || 'Quran learner';
+    const name = state.customName || state.name || 'Quran learner';
     document.getElementById('profileName').textContent = name.split(' ')[0];
     document.getElementById('welcomeName').textContent = name.split(' ')[0];
     document.getElementById('avatar').textContent = state.avatar;
@@ -421,7 +374,7 @@
       });
       if (serverUser.user) {
         telegramUser = serverUser.user;
-        state.name = [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(' ') || state.name;
+        if (!state.customName) state.name = [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(' ') || state.name;
         state.username = telegramUser.username ? '@' + telegramUser.username : state.username;
         state.isPro = !!serverUser.user.isPro;
         saveState();
@@ -520,11 +473,6 @@
   }
 
   async function startQuiz(mode='random', filter=null) {
-    if (!state.isPro && state.dailyDone >= 5) {
-      toast('Free daily limit reached. Unlock Pro for unlimited practice.');
-      openModal('proModal');
-      return;
-    }
 
     session = {mode, filter, q:0, score:0, xp:0, questions:[]};
     showView('quiz');
@@ -557,9 +505,12 @@
     document.getElementById('qNumber').textContent = q;
     document.getElementById('quizProgress').style.width = (q / 10 * 100) + '%';
     document.getElementById('sessionScore').textContent = session.score;
-    document.getElementById('ayahMeta').textContent = `${currentAyah.surahName} · ${currentAyah.numberInSurah} · Juz ${currentAyah.juz}`;
     document.getElementById('ayahArabic').textContent = currentAyah.arabic;
     document.getElementById('bookmarkBtn').textContent = state.bookmarks.some(x => x.globalNumber === currentAyah.globalNumber) ? '★' : '☆';
+    document.getElementById('translationBox').classList.add('hidden');
+    document.getElementById('translationBox').innerHTML = '';
+    document.getElementById('answerFeedback').classList.add('hidden');
+    document.getElementById('recitationControls').classList.toggle('hidden', !state.isPro);
 
     const box = document.getElementById('options');
     box.innerHTML = '';
@@ -586,9 +537,14 @@
 
     const feedback = document.getElementById('answerFeedback');
     feedback.classList.remove('hidden');
+    const translation = document.getElementById('translationBox');
+    translation.innerHTML = `<b>English translation</b><div class="mt-1">${escapeHTML(currentAyah.english)}</div>`;
+    translation.classList.remove('hidden');
     feedback.innerHTML = correct
-      ? `<b class="text-[#4cdb9e]">Correct — mashaAllah! 🎉</b><div class="muted text-sm mt-1">${escapeHTML(currentAyah.english)}</div>`
-      : `<b class="text-[#f17b85]">Not quite.</b><div class="muted text-sm mt-1">This is <b>${escapeHTML(currentAyah.surahName)}</b>. ${escapeHTML(currentAyah.english)}</div>`;
+      ? `<b>Correct — mashaAllah! 🎉</b><div class="muted text-sm mt-1">${escapeHTML(currentAyah.surahName)} · Ayah ${currentAyah.numberInSurah}</div>`
+      : `<b>Not quite.</b><div class="muted text-sm mt-1">The answer is <b>${escapeHTML(currentAyah.surahName)}</b> · Ayah ${currentAyah.numberInSurah}</div>`;
+    feedback.style.background = correct ? '#eaf9f2' : '#fff0f2';
+    feedback.style.border = `1px solid ${correct ? '#a7dfc8' : '#f0b1bb'}`;
 
     state.answered++;
     state.dailyDone++;
@@ -639,6 +595,7 @@
   }
 
   function toggleBookmark() {
+    if (!state.isPro) { openModal('proModal'); toast('Bookmarks are a Pro feature.'); return; }
     if (!currentAyah) return;
     const i = state.bookmarks.findIndex(x => x.globalNumber === currentAyah.globalNumber);
     if (i >= 0) {
@@ -659,9 +616,13 @@
   }
 
   function playAudio() {
+    if (!state.isPro) { openModal('proModal'); toast('Recitation is a Pro feature.'); return; }
     if (!currentAyah) return;
+    audio.pause();
     const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${currentAyah.globalNumber}.mp3`;
-    audio.src = url;
+    if (audio.src !== url) audio.src = url;
+    audio.currentTime = 0;
+    audio.preload = 'auto';
     audio.playbackRate = Number(document.getElementById('speedSelect').value);
     audio.play().then(() => {
       document.getElementById('audioBtn').textContent = '⏸ Pause';
@@ -695,6 +656,12 @@
       });
   }
 
+  function renderMemoryMap() {
+    const box=document.getElementById('memoryMap');
+    if(!state.isPro){ box.innerHTML='<div class="col-span-6 card p-4 text-center muted">🔒 Unlock Pro to see your memorization map.</div>'; return; }
+    box.innerHTML=Array.from({length:30},(_,i)=>{ const n=i+1; const intensity=Math.min(4,Math.floor(state.answered/30)); return `<div class="rounded-xl h-10 flex items-center justify-center text-xs font-bold" style="background:${intensity?['#eaf5ef','#d5eee2','#b6e1ce','#82cdb0','#45b991'][intensity]:'#f2f6f4'};color:#31584b">${n}</div>`; }).join('');
+  }
+
   function renderStats() {
     document.getElementById('statsXP').textContent=state.xp;
     document.getElementById('statsLevel').textContent=level();
@@ -708,15 +675,18 @@
       ['💎','Level 10',level()>=10,'Reach level 10'],
       ['🔖','Collector',state.bookmarks.length>=10,'Bookmark 10 ayahs']
     ];
-    document.getElementById('achievements').innerHTML=achievements.map(a =>
+    document.getElementById('achievements').innerHTML=(state.isPro ? achievements : achievements.slice(0,2)).map(a =>
       `<div class="card p-3 flex items-center gap-3 ${a[2]?'':'opacity-45'}"><div class="text-2xl">${a[0]}</div><div><b>${a[1]}</b><div class="muted text-xs">${a[3]}</div></div><div class="ml-auto">${a[2]?'✓':'🔒'}</div></div>`
     ).join('');
+    renderMemoryMap();
   }
 
   function renderProfile() {
     document.getElementById('profileAvatarBig').textContent=state.avatar;
-    document.getElementById('profileFullName').textContent=state.name;
-    document.getElementById('profileUsername').textContent=state.username || 'Telegram account';
+    document.getElementById('profileFullName').textContent=state.customName || state.name;
+    document.getElementById('displayNameInput').value=state.customName || state.name || '';
+    document.getElementById('profileUsername').textContent=state.username || 'Telegram username not set';
+    document.getElementById('displayNameInput').value=state.customName || state.name || '';
     document.getElementById('profileTier').textContent=state.isPro?'PRO ✦':'FREE';
     document.getElementById('pStreak').textContent=state.streak;
     document.getElementById('pXP').textContent=state.xp;
@@ -781,7 +751,7 @@
     try {
       await api('/api/pro/telebirr',{
         method:'POST',
-        body:JSON.stringify({initData:currentInitData,reference:ref})
+        body:JSON.stringify({initData:currentInitData,reference:ref,displayName:state.customName || state.name || ''})
       });
       toast('Request sent. Wait for admin approval.');
       document.getElementById('telebirrRef').value='';
@@ -790,6 +760,7 @@
   }
 
   function startFromFilter(mode) {
+    if((mode==='mistakes' || mode==='bookmarks') && !state.isPro) { openModal('proModal'); toast('This revision mode is a Pro feature.'); return; }
     if(mode==='mistakes') startQuiz('mistakes',state.mistakes);
     else if(mode==='bookmarks') startQuiz('bookmarks',state.bookmarks);
     else if(mode==='daily') startQuiz('daily');
@@ -817,16 +788,31 @@
   document.getElementById('profileBtn').addEventListener('click',()=>{renderProfile();openModal('profileModal')});
   document.getElementById('nextBtn').addEventListener('click',nextQuestion);
   document.getElementById('bookmarkBtn').addEventListener('click',toggleBookmark);
-  document.getElementById('audioBtn').addEventListener('click',()=>{
+  document.getElementById('audioBtn').addEventListener('click',(event)=>{
+    event.stopPropagation();
     if(!audio.paused){audio.pause();document.getElementById('audioBtn').textContent='🔊 Listen';}
     else playAudio();
   });
   document.getElementById('speedSelect').addEventListener('change',()=>{if(currentAyah) audio.playbackRate=Number(document.getElementById('speedSelect').value)});
-  audio.addEventListener('ended',()=>document.getElementById('audioBtn').textContent='🔊 Listen');
+  audio.addEventListener('ended',()=>document.getElementById('audioBtn').textContent='▶︎ Recitation');
+  audio.addEventListener('pause',()=>{ if(!audio.ended) document.getElementById('audioBtn').textContent='▶︎ Recitation'; });
+  audio.addEventListener('play',()=>document.getElementById('audioBtn').textContent='⏸ Pause');
   document.getElementById('starsBtn').addEventListener('click',payStars);
   document.getElementById('telebirrBtn').addEventListener('click',requestTelebirr);
   document.getElementById('surahSearch').addEventListener('input',e=>renderSurahs(e.target.value));
   document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>startFromFilter(b.dataset.filter)));
+
+  document.getElementById('saveNameBtn').addEventListener('click',()=>{
+    const value=document.getElementById('displayNameInput').value.trim().replace(/\s+/g,' ');
+    if(!value){toast('Please enter a name.');return;}
+    state.customName=value.slice(0,30); state.name=state.customName; saveState(); renderHeader(); renderProfile(); toast('Display name updated ✨');
+  });
+
+  document.getElementById('saveNameBtn').addEventListener('click',()=>{
+    const value=document.getElementById('displayNameInput').value.trim().replace(/\s+/g,' ');
+    if(!value){ toast('Please enter a name.'); return; }
+    state.customName=value.slice(0,30); state.name=state.customName; saveState(); renderHeader(); renderProfile(); toast('Name updated ✨');
+  });
 
   document.getElementById('resetLocalBtn').addEventListener('click',()=>{
     if(!confirm('Reset your local quiz progress, bookmarks and mistakes?')) return;
@@ -837,6 +823,7 @@
 
   syncDaily();
   renderHeader();
+  document.getElementById('recitationControls').classList.toggle('hidden', !state.isPro);
   loadSurahs().then(renderFilters).catch(()=>{});
   authenticate();
 
